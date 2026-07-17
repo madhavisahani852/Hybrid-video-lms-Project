@@ -154,8 +154,8 @@ export default makeScene2D('scene13', function* (view) {
 
   yield* all(
     // Slow camera drift
-    cameraRef().scale(1.04, 40),
-    cameraRef().position.y(-10, 40),
+    cameraRef().scale(1.04, 8),
+    cameraRef().position.y(-10, 8),
 
     // Scene animation sequence
     chain(
@@ -189,7 +189,7 @@ export default makeScene2D('scene13', function* (view) {
         3.0
       ),
 
-      waitFor(22)
+      waitFor(2)
     )
   );
 });

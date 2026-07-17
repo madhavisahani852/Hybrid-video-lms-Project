@@ -105,8 +105,8 @@ export default makeScene2D('scene25', function* (view) {
   const captionTxt = captionRef().children()[0] as Txt;
 
   yield* all(
-    cameraRef().scale(1.04, 40),
-    cameraRef().position.y(10, 40),
+    cameraRef().scale(1.04, 8),
+    cameraRef().position.y(10, 8),
 
     chain(
       waitFor(1),
@@ -140,7 +140,7 @@ export default makeScene2D('scene25', function* (view) {
         2.6
       ),
 
-      waitFor(22)
+      waitFor(2)
     )
   );
 });

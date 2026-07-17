@@ -87,8 +87,8 @@ export default makeScene2D('scene28', function* (view) {
   const captionTxt = captionRef().children()[0] as Txt;
 
   yield* all(
-    cameraRef().scale(1.04, 40),
-    cameraRef().position.y(-5, 40),
+    cameraRef().scale(1.04, 8),
+    cameraRef().position.y(-5, 8),
 
     chain(
       waitFor(1),
@@ -99,11 +99,11 @@ export default makeScene2D('scene28', function* (view) {
       // Pop in cards with stagger
       all(
         popIn(app1Ref(), 2),
-        chain(waitFor(6), popIn(app2Ref(), 2)),
-        chain(waitFor(12), popIn(app3Ref(), 2)),
-        chain(waitFor(18), popIn(app4Ref(), 2)),
-        chain(waitFor(24), popIn(app5Ref(), 2)),
-        chain(waitFor(30), popIn(app6Ref(), 2))
+        chain(waitFor(1), popIn(app2Ref(), 2)),
+        chain(waitFor(2), popIn(app3Ref(), 2)),
+        chain(waitFor(3), popIn(app4Ref(), 2)),
+        chain(waitFor(4), popIn(app5Ref(), 2)),
+        chain(waitFor(5), popIn(app6Ref(), 2))
       ),
       waitFor(0.5),
 
@@ -114,7 +114,7 @@ export default makeScene2D('scene28', function* (view) {
         2.8
       ),
 
-      waitFor(22)
+      waitFor(2)
     )
   );
 });

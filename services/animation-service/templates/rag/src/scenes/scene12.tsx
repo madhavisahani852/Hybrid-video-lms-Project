@@ -86,8 +86,8 @@ export default makeScene2D('scene12', function* (view) {
 
   yield* all(
     // Slow camera drift
-    cameraRef().scale(1.05, 40),
-    cameraRef().position.y(20, 40),
+    cameraRef().scale(1.05, 8),
+    cameraRef().position.y(20, 8),
 
     // Scene animation sequence
     chain(
@@ -104,7 +104,7 @@ export default makeScene2D('scene12', function* (view) {
       // Pop in Thank You Card
       popIn(thankYouRef(), 0.8),
 
-      waitFor(70)
+      waitFor(2)
     )
   );
 });

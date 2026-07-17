@@ -60,8 +60,8 @@ export default makeScene2D('scene1', function* (view) {
   // Run continuous cinematic camera movement in parallel with scene animations
   yield* all(
     // Slow camera zoom and horizontal pan
-    cameraRef().scale(1.04, 40),
-    cameraRef().position.y(-10, 40),
+    cameraRef().scale(1.04, 8),
+    cameraRef().position.y(-10, 8),
 
     // Scene animation sequence
     chain(
@@ -82,7 +82,7 @@ export default makeScene2D('scene1', function* (view) {
       typeText(captionTxt, 'Retrieval-Augmented Generation (RAG) is a technique that enhances LLMs with external data.', 2.5),
 
       // Wait for the remainder of the 75s duration
-      waitFor(10)
+      waitFor(2)
     )
   );
 });

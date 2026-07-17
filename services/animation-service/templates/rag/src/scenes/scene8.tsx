@@ -88,8 +88,8 @@ export default makeScene2D('scene8', function* (view) {
 
   yield* all(
     // Slow camera drift
-    cameraRef().scale(1.04, 40),
-    cameraRef().position.x(-10, 40),
+    cameraRef().scale(1.04, 8),
+    cameraRef().position.x(-10, 8),
 
     // Scene animation sequence
     chain(

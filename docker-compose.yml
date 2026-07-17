@@ -39,6 +39,8 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
+      - SARVAM_API_KEY=${SARVAM_API_KEY}
+
     depends_on:
       - talking-head-service
     restart: unless-stopped

@@ -178,8 +178,8 @@ export default makeScene2D('scene30', function* (view) {
 
   yield* all(
     // Camera slowly zooms and pans across the full pipeline
-    cameraRef().scale(1.05, 40),
-    cameraRef().position.y(10, 40),
+    cameraRef().scale(1.05, 8),
+    cameraRef().position.y(10, 8),
 
     chain(
       waitFor(1),
@@ -221,7 +221,7 @@ export default makeScene2D('scene30', function* (view) {
         3.2
       ),
 
-      waitFor(22)
+      waitFor(2)
     )
   );
 });

@@ -161,8 +161,8 @@ export default makeScene2D('scene3', function* (view) {
 
   yield* all(
     // Slow camera drift
-    cameraRef().scale(1.04, 40),
-    cameraRef().position.y(-10, 40),
+    cameraRef().scale(1.04, 8),
+    cameraRef().position.y(-10, 8),
 
     // Scene animation sequence
     chain(

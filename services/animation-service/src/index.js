@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
@@ -30,7 +31,13 @@ app.use(express.static(path.join(__dirname, '../public')));
 // In-memory render job database
 const jobsDb = new Map();
 
-const API_KEY = process.env.SARVAM_API_KEY || "sk_y25zfvvc_WhWlL0w3VjvolJikQyqJnHL0";
+const API_KEY = process.env.SARVAM_API_KEY;
+if (!API_KEY) {
+  throw new Error(
+    'SARVAM_API_KEY environment variable is not configured. ' +
+    'Set it in your .env file or in the process environment before starting the service.'
+  );
+}
 
 const celebrityVoiceMap = {
   // Male
@@ -220,7 +227,38 @@ async function runRenderPipeline(jobId, speaker, languageCode) {
       console.log(`\x1b[36m[Job Progress]\x1b[0m Job ID: ${jobId} | Running native Revideo compiler for RAG course (this may take a few minutes)...`);
 
       const ragTemplateDir = path.join(__dirname, '../templates/rag');
-      await execPromise(`npm run render`, { cwd: ragTemplateDir, maxBuffer: 100 * 1024 * 1024, env: { ...process.env, PUPPETEER_DISABLE_SANDBOX: 'true' } });
+
+      // Stream the render process so we can forward Revideo's own progress (40→80%)
+      await new Promise((resolve, reject) => {
+        const child = exec(`npm run render`, {
+          cwd: ragTemplateDir,
+          maxBuffer: 100 * 1024 * 1024,
+          env: { ...process.env, PUPPETEER_DISABLE_SANDBOX: 'true' }
+        });
+
+        const handleData = (data) => {
+          const text = data.toString();
+          process.stdout.write(text);
+          // Revideo logs "Render progress, worker 0: X%"
+          const m = text.match(/Render progress.*?:\s*([\d.]+)%/i);
+          if (m) {
+            const revideoPct = parseFloat(m[1]);
+            // Map Revideo 0-100% → job 40-80%
+            const jobPct = 40 + Math.round(revideoPct * 0.4);
+            job.progress = jobPct;
+            jobsDb.set(jobId, { ...job });
+          }
+        };
+
+        if (child.stdout) child.stdout.on('data', handleData);
+        if (child.stderr) child.stderr.on('data', handleData);
+
+        child.on('close', (code) => {
+          if (code === 0) resolve();
+          else reject(new Error(`npm run render exited with code ${code}`));
+        });
+        child.on('error', reject);
+      });
 
       const defaultOutput = path.join(ragTemplateDir, 'output/video.mp4');
       if (!fs.existsSync(defaultOutput)) {
