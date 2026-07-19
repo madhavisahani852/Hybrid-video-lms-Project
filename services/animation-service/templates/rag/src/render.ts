@@ -9,8 +9,8 @@ async function render() {
       settings: {
         logProgress: true,
         puppeteer: {
-          args: ['--no-sandbox', '--disable-setuid-sandbox']
-        }
+          args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        },
       },
     });
 
@@ -18,6 +18,7 @@ async function render() {
     console.log(file);
   } catch (err) {
     console.error(err);
+    process.exit(1);
   }
 }
 

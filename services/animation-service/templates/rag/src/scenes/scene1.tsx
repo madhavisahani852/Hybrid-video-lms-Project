@@ -82,7 +82,7 @@ export default makeScene2D('scene1', function* (view) {
       typeText(captionTxt, 'Retrieval-Augmented Generation (RAG) is a technique that enhances LLMs with external data.', 2.5),
 
       // Wait for the remainder of the 75s duration
-      waitFor(2)
+      waitFor(15)
     )
   );
 });

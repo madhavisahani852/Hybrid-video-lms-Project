@@ -148,7 +148,7 @@ export default makeScene2D('scene8', function* (view) {
       fadeIn(captionRef(), 2),
       typeText(captionTxt, 'Vector databases index these embeddings in high-dimensional spaces to find semantic connections instantly.', 2.8),
 
-      waitFor(5)
+      waitFor(15)
     )
   );
 });

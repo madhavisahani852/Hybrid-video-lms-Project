@@ -167,7 +167,7 @@ export default makeScene2D('scene9', function* (view) {
       fadeIn(captionRef(), 0.5),
       typeText(captionTxt, 'The query is vectorized, compared to indexed vectors, and the top-matching documents are retrieved.', 2.8),
 
-      waitFor(5)
+      waitFor(15)
     )
   );
 });

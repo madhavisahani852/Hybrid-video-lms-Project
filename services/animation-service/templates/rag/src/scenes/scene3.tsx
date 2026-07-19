@@ -195,7 +195,7 @@ export default makeScene2D('scene3', function* (view) {
       fadeIn(captionRef(), 2),
       typeText(captionTxt, 'LLMs are limited by a static knowledge cutoff date. They are blind to events after this point.', 2.8),
 
-      waitFor(5)
+      waitFor(15)
     )
   );
 });

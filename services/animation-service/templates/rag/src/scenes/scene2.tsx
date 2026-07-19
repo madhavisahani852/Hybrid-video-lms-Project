@@ -176,7 +176,7 @@ export default makeScene2D('scene2', function* (view) {
       fadeIn(captionRef(), 2),
       typeText(captionTxt, 'When LLMs rely only on training data, they confidently hallucinate facts they do not know.', 2.5),
 
-      waitFor(2)
+      waitFor(15)
     )
   );
 });

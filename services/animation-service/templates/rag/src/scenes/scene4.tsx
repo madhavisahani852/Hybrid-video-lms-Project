@@ -166,7 +166,7 @@ export default makeScene2D('scene4', function* (view) {
       fadeIn(captionRef(), 2),
       typeText(captionTxt, 'In traditional systems, questions go directly to the model, which only knows what it learned in training.', 2.8),
 
-      waitFor(5)
+      waitFor(15)
     )
   );
 });

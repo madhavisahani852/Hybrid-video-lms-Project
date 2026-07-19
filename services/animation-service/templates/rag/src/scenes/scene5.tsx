@@ -190,7 +190,7 @@ export default makeScene2D('scene5', function* (view) {
       fadeIn(captionRef(), 2),
       typeText(captionTxt, 'RAG intercepts user queries, retrieves relevant facts from a database, and augments the prompt before generation.', 2.8),
 
-      waitFor(5)
+      waitFor(15)
     )
   );
 });

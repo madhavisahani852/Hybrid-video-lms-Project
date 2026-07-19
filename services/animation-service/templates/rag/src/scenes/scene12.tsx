@@ -104,7 +104,7 @@ export default makeScene2D('scene12', function* (view) {
       // Pop in Thank You Card
       popIn(thankYouRef(), 0.8),
 
-      waitFor(2)
+      waitFor(15)
     )
   );
 });

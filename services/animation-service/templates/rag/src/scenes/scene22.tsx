@@ -146,7 +146,7 @@ export default makeScene2D('scene22', function* (view) {
         2.6
       ),
 
-      waitFor(2)
+      waitFor(15)
     )
   );
 });

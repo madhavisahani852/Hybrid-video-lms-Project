@@ -149,7 +149,7 @@ export default makeScene2D('scene10', function* (view) {
       fadeIn(captionRef(), 0.5),
       typeText(captionTxt, 'We inject the retrieved context alongside the user question, packing them into an augmented prompt.', 2.8),
 
-      waitFor(5)
+      waitFor(15)
     )
   );
 });

@@ -174,7 +174,7 @@ export default makeScene2D('scene6', function* (view) {
       fadeIn(captionRef(), 2),
       typeText(captionTxt, 'We chunk documents into smaller paragraphs to make sure RAG retrieves highly specific context.', 2.8),
 
-      waitFor(5)
+      waitFor(15)
     )
   );
 });

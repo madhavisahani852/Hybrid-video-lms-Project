@@ -156,7 +156,7 @@ export default makeScene2D('scene7', function* (view) {
       fadeIn(captionRef(), 2),
       typeText(captionTxt, 'An embedding model transforms text into high-dimensional vectors that capture semantic meaning.', 2.8),
 
-      waitFor(5)
+      waitFor(15)
     )
   );
 });
