@@ -15,6 +15,7 @@ if (!API_KEY) {
 }
 const OUTPUT_DIR = path.join(__dirname, 'public/assets/audio');
 
+
 // Make sure output folder exists
 if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });

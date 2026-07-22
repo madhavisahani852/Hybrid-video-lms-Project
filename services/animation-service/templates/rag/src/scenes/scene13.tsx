@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt, Line } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Line, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -9,6 +9,7 @@ import { popIn } from '../animations/pop';
 import { fadeIn } from '../animations/fade';
 import { drawIn } from '../animations/draw';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene13', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -56,6 +57,10 @@ export default makeScene2D('scene13', function* (view) {
             fill={THEME.colors.text}
             text={'Exact Keyword Match'}
             marginBottom={10}
+          />
+          <Audio
+            src="/audio/female/step_9.wav"
+            play
           />
           <Txt
             fontFamily={THEME.fonts.main}
@@ -151,12 +156,17 @@ export default makeScene2D('scene13', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 27.6;
+
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[9] - elapsedTime
+  );
 
   yield* all(
     // Slow camera drift
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.y(-10, 8),
-
+    cameraRef().scale(1.04, ragDurationsFemale[9]),
+    cameraRef().position.y(-10, ragDurationsFemale[9]),
     // Scene animation sequence
     chain(
       waitFor(2),
@@ -189,7 +199,7 @@ export default makeScene2D('scene13', function* (view) {
         3.0
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

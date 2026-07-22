@@ -150,7 +150,7 @@ export default makeScene2D('scene11', function* (view) {
       fadeIn(captionRef(), 0.5),
       typeText(captionTxt, 'By connecting query embeddings directly to a vector database, RAG grounds the LLM in real-world facts.', 2.8),
 
-      waitFor(15)
+      waitFor(17)
     )
   );
 });

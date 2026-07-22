@@ -9,6 +9,7 @@ import { fadeIn } from '../animations/fade';
 import { popIn } from '../animations/pop';
 import { drawIn } from '../animations/draw';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene17', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -143,10 +144,16 @@ export default makeScene2D('scene17', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 19.4;
+
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[11] - elapsedTime
+  );
 
   yield* all(
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.y(-10, 8),
+    cameraRef().scale(1.04, ragDurationsFemale[11]),
+    cameraRef().position.y(-10, ragDurationsFemale[11]),
 
     chain(
       waitFor(1),
@@ -183,7 +190,7 @@ export default makeScene2D('scene17', function* (view) {
         2.8
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

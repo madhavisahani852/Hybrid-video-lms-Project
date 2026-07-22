@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -9,6 +9,7 @@ import { popIn } from '../animations/pop';
 import { fadeIn } from '../animations/fade';
 import { slideInFrom } from '../animations/slide';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene19', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -93,6 +94,10 @@ export default makeScene2D('scene19', function* (view) {
         <Rect ref={filter3Ref} x={360} y={200} opacity={0}>
           <Badge text={'FILTER: source = arxiv'} color={THEME.colors.purple} />
         </Rect>
+        <Audio
+          src="/audio/female/step_12.wav"
+          play
+        />
 
         {/* Caption */}
         <Caption
@@ -107,10 +112,15 @@ export default makeScene2D('scene19', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 19.2;
 
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[12] - elapsedTime
+  );
   yield* all(
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.y(10, 8),
+    cameraRef().scale(1.04, ragDurationsFemale[12]),
+    cameraRef().position.y(10, ragDurationsFemale[12]),
 
     chain(
       waitFor(1),
@@ -140,7 +150,7 @@ export default makeScene2D('scene19', function* (view) {
         2.6
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

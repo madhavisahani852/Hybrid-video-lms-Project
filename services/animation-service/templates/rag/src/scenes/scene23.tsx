@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt, Line } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Line, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -12,6 +12,7 @@ import { fadeIn } from '../animations/fade';
 import { drawIn } from '../animations/draw';
 import { slideOutTo } from '../animations/slide';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene23', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -49,6 +50,10 @@ export default makeScene2D('scene23', function* (view) {
             text={'Re-ranking'}
           />
         </Rect>
+        <Audio
+          src="/audio/female/step_16.wav"
+          play
+        />
 
         {/* Retrieved docs label */}
         <Rect ref={retrievedLabelRef} x={-530} y={-250} opacity={0}>
@@ -119,11 +124,16 @@ export default makeScene2D('scene23', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 24.3;
+
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[16] - elapsedTime
+  );
 
   yield* all(
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.x(5, 8),
-
+    cameraRef().scale(1.04, ragDurationsFemale[16]),
+    cameraRef().position.y(10, ragDurationsFemale[16]),
     chain(
       waitFor(1),
 
@@ -177,7 +187,7 @@ export default makeScene2D('scene23', function* (view) {
         2.8
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

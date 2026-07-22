@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt, Line } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Line, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -11,6 +11,7 @@ import { popIn } from '../animations/pop';
 import { fadeIn } from '../animations/fade';
 import { drawIn } from '../animations/draw';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene25', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -44,6 +45,10 @@ export default makeScene2D('scene25', function* (view) {
             text={'Complete Retrieval Pipeline'}
           />
         </Rect>
+        <Audio
+          src="/audio/female/step_18.wav"
+          play
+        />
 
         {/* 1. Query */}
         <Card ref={queryCardRef} x={-750} y={0} width={160} height={110} opacity={0} alignItems={'center'} justifyContent={'center'}>
@@ -103,10 +108,16 @@ export default makeScene2D('scene25', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 35.2;
+
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[18] - elapsedTime
+  );
 
   yield* all(
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.y(10, 8),
+    cameraRef().scale(1.04, ragDurationsFemale[18]),
+    cameraRef().position.y(10, ragDurationsFemale[18]),
 
     chain(
       waitFor(1),
@@ -140,7 +151,7 @@ export default makeScene2D('scene25', function* (view) {
         2.6
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

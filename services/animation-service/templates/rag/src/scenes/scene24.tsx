@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -10,7 +10,7 @@ import { popIn } from '../animations/pop';
 import { fadeIn } from '../animations/fade';
 import { slideInFrom } from '../animations/slide';
 import { typeText } from '../animations/typing';
-
+import { ragDurationsFemale } from '../rag_durations_female';
 export default makeScene2D('scene24', function* (view) {
   const cameraRef = createRef<Rect>();
   const titleRef = createRef<Rect>();
@@ -56,6 +56,10 @@ export default makeScene2D('scene24', function* (view) {
             textWrap={true}
           />
         </Card>
+        <Audio
+          src="/audio/female/step_17.wav"
+          play
+        />
 
         {/* PromptBox in the center */}
         <Rect ref={promptBoxRef} x={60} y={-10} opacity={0}>
@@ -99,10 +103,16 @@ export default makeScene2D('scene24', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 31.7;
+
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[17] - elapsedTime
+  );
 
   yield* all(
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.y(-5, 8),
+    cameraRef().scale(1.04, ragDurationsFemale[17]),
+    cameraRef().position.y(-5, ragDurationsFemale[17]),
 
     chain(
       waitFor(1),
@@ -129,7 +139,7 @@ export default makeScene2D('scene24', function* (view) {
         2.6
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

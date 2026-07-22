@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt, Line } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Line, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -11,6 +11,7 @@ import { popIn } from '../animations/pop';
 import { fadeIn } from '../animations/fade';
 import { drawIn } from '../animations/draw';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene14', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -38,6 +39,10 @@ export default makeScene2D('scene14', function* (view) {
             text={'What is an Embedding?'}
           />
         </Rect>
+        <Audio
+          src="/audio/female/step_6.wav"
+          play
+        />
 
         {/* Input Text Card */}
         <Card
@@ -134,11 +139,16 @@ export default makeScene2D('scene14', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 22.0;
 
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[6] - elapsedTime
+  );
   yield* all(
     // Slow camera drift
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.x(10, 8),
+    cameraRef().scale(1.04, ragDurationsFemale[6]),
+    cameraRef().position.x(10, ragDurationsFemale[6]),
 
     chain(
       waitFor(2),
@@ -171,7 +181,7 @@ export default makeScene2D('scene14', function* (view) {
         2.8
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

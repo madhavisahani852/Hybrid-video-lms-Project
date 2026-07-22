@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -10,6 +10,7 @@ import { fadeIn } from '../animations/fade';
 import { pulseScale } from '../animations/pulse';
 import { slideOutTo } from '../animations/slide';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene8', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -53,6 +54,10 @@ export default makeScene2D('scene8', function* (view) {
           values={[0.15, -0.92, 0.44]}
           glow={true}
         />
+        <Audio
+          src="/audio/female/step_8.wav"
+          play
+        />
 
         <Vector
           ref={vec2Ref}
@@ -86,10 +91,17 @@ export default makeScene2D('scene8', function* (view) {
 
   const captionTxt = captionRef().children()[0] as Txt;
 
+  const elapsedTime = 29.8;
+
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[8] - elapsedTime
+  );
+
   yield* all(
     // Slow camera drift
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.x(-10, 8),
+    cameraRef().scale(1.04, ragDurationsFemale[8]),
+    cameraRef().position.x(-10, ragDurationsFemale[8]),
 
     // Scene animation sequence
     chain(
@@ -148,7 +160,7 @@ export default makeScene2D('scene8', function* (view) {
       fadeIn(captionRef(), 2),
       typeText(captionTxt, 'Vector databases index these embeddings in high-dimensional spaces to find semantic connections instantly.', 2.8),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

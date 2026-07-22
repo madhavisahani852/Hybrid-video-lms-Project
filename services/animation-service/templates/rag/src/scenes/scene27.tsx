@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -9,7 +9,7 @@ import { popIn } from '../animations/pop';
 import { fadeIn } from '../animations/fade';
 import { shakeNode } from '../animations/shake';
 import { typeText } from '../animations/typing';
-
+import { ragDurationsFemale } from '../rag_durations_female';
 export default makeScene2D('scene27', function* (view) {
   const cameraRef = createRef<Rect>();
   const titleRef = createRef<Rect>();
@@ -50,6 +50,10 @@ export default makeScene2D('scene27', function* (view) {
             <Badge text={'LATENCY'} color={THEME.colors.error} marginBottom={10} />
             <Txt fontFamily={THEME.fonts.main} fontSize={17} fill={THEME.colors.textMuted} text={'Extra retrieval step adds ~100–500ms latency per query. Real-time apps need careful optimization.'} textWrap={true} textAlign={'center'} />
           </Card>
+          <Audio
+            src="/audio/female/step_20.wav"
+            play
+          />
 
           <Card
             ref={lim2Ref}
@@ -104,10 +108,16 @@ export default makeScene2D('scene27', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 35.2;
+
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[20] - elapsedTime
+  );
 
   yield* all(
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.y(5, 8),
+    cameraRef().scale(1.04, ragDurationsFemale[20]),
+    cameraRef().position.y(5, ragDurationsFemale[20]),
 
     chain(
       waitFor(1),
@@ -138,7 +148,7 @@ export default makeScene2D('scene27', function* (view) {
         2.6
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

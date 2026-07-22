@@ -14,7 +14,7 @@ if (!API_KEY) {
 
 const OUTPUT_DIR = path.join(
   __dirname,
-  "public/assets/audio_rag"
+  "public/assets/audio_rag_female"
 );
 
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -95,17 +95,25 @@ async function generateAllTTS() {
           body: JSON.stringify({
             text: subtitlesList[i],
             target_language_code: "en-IN",
-            speaker: "aditya",
+            speaker: "kavya",
             model: "bulbul:v3"
           })
         }
       );
 
       if (!response.ok) {
-        throw new Error(
-          `Sarvam API error: ${response.status} ${response.statusText}`
-        );
-      }
+  const errorBody = await response.text();
+
+  throw new Error(
+    `Sarvam API error: ${response.status} ${response.statusText}\n${errorBody}`
+  );
+}if (!response.ok) {
+  const errorBody = await response.text();
+
+  throw new Error(
+    `Sarvam API error: ${response.status} ${response.statusText}\n${errorBody}`
+  );
+}
 
       const data = await response.json();
 

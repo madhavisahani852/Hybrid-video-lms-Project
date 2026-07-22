@@ -1,8 +1,10 @@
 import { renderVideo } from "@revideo/renderer";
+import fs from "fs";
+import path from "path";
 
 async function render() {
   try {
-    console.log("Rendering video...");
+    console.log("Rendering synchronized RAG video...");
 
     const file = await renderVideo({
       projectFile: "./src/project.tsx",

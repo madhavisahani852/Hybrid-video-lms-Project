@@ -17,85 +17,55 @@ const OUTPUT_FILE = path.join(
 );
 
 if (!fs.existsSync(AUDIO_DIR)) {
-  throw new Error(
-    `Audio directory does not exist: ${AUDIO_DIR}`
-  );
+  throw new Error(`Audio directory does not exist: ${AUDIO_DIR}`);
 }
 
 const audioFiles = fs
   .readdirSync(AUDIO_DIR)
-  .filter(file =>
-    /^step_\d+\.wav$/.test(file)
-  )
+  .filter(file => /^step_\d+\.wav$/.test(file))
   .sort((a, b) => {
-    const aNumber =
-      parseInt(a.match(/\d+/)[0]);
-
-    const bNumber =
-      parseInt(b.match(/\d+/)[0]);
+    const aNumber = parseInt(a.match(/\d+/)[0]);
+    const bNumber = parseInt(b.match(/\d+/)[0]);
 
     return aNumber - bNumber;
   });
 
-if (audioFiles.length === 0) {
+if (audioFiles.length !== 24) {
   throw new Error(
-    "No step_*.wav files found."
+    `Expected 24 audio files, but found ${audioFiles.length}`
   );
 }
 
 const durations = [];
 
 for (const file of audioFiles) {
-  const filePath = path.join(
-    AUDIO_DIR,
-    file
+  const filePath = path.join(AUDIO_DIR, file);
+
+  const output = execFileSync(
+    "ffprobe",
+    [
+      "-v",
+      "error",
+      "-show_entries",
+      "format=duration",
+      "-of",
+      "default=noprint_wrappers=1:nokey=1",
+      filePath
+    ],
+    {
+      encoding: "utf8"
+    }
   );
 
-  try {
-    const output = execFileSync(
-      "ffprobe",
-      [
-        "-i",
-        filePath,
-        "-show_entries",
-        "format=duration",
-        "-v",
-        "quiet",
-        "-of",
-        "csv=p=0"
-      ],
-      {
-        encoding: "utf8"
-      }
-    );
+  const rawDuration = parseFloat(output.trim());
 
-    const rawDuration =
-      parseFloat(output.trim());
-
-    if (isNaN(rawDuration)) {
-      throw new Error(
-        "Invalid duration returned by ffprobe"
-      );
-    }
-
-    // Buffer prevents the final word from being cut off.
-    const duration =
-      Number((rawDuration + 0.3).toFixed(2));
-
-    durations.push(duration);
-
-    console.log(
-      `${file}: ${duration}s`
-    );
-
-  } catch (error) {
-    console.error(
-      `Failed to read duration for ${file}:`,
-      error.message
-    );
-
-    process.exit(1);
+  if (Number.isNaN(rawDuration)) {
+    throw new Error(`Invalid duration for ${file}`);
   }
+
+  const duration = Number((rawDuration + 0.3).toFixed(2));
+
+  durations.push(duration);
 }
 
 const outputContent = `
@@ -114,21 +84,11 @@ fs.writeFileSync(
   outputContent.trim() + "\n"
 );
 
-console.log(
-  `\nGenerated ${OUTPUT_FILE}`
+const totalDuration = durations.reduce(
+  (sum, duration) => sum + duration,
+  0
 );
 
-console.log(
-  `Total audio files: ${durations.length}`
-);
-
-const totalDuration =
-  durations.reduce(
-    (sum, duration) =>
-      sum + duration,
-    0
-  );
-
-console.log(
-  `Total duration: ${totalDuration.toFixed(2)} seconds`
-);
+console.log(`Generated: ${OUTPUT_FILE}`);
+console.log(`Audio files: ${durations.length}`);
+console.log(`Total duration: ${totalDuration.toFixed(2)} seconds`);

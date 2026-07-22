@@ -134,40 +134,40 @@ export default makeScene2D('scene9', function* (view) {
 
       // Pop in Query vector
       popIn(queryVecRef(), 0.6),
-      waitFor(2),
+      waitFor(1),
 
       // Pop in database, draw vector to DB arrow
       all(
         popIn(dbContainerRef(), 0.6),
         drawIn(arrowVecToDbRef(), 0.6)
       ),
-      waitFor(2),
+      waitFor(1),
 
       // Slide Query vector into DB canister
       all(
         slideOutTo(queryVecRef(), 500, 0, 0.6),
         chain(
-          waitFor(2),
+          waitFor(1),
           all(
             dbRef().shadowColor(THEME.colors.primary, 0.3),
             dbRef().shadowBlur(20, 0.3)
           )
         )
       ),
-      waitFor(2),
+      waitFor(1),
 
       // Draw DB to Document arrow, and pop document
       all(
         drawIn(arrowDbToDocRef(), 0.6),
         popIn(docContainerRef(), 0.6)
       ),
-      waitFor(2),
+      waitFor(1),
 
       // Caption
       fadeIn(captionRef(), 0.5),
       typeText(captionTxt, 'The query is vectorized, compared to indexed vectors, and the top-matching documents are retrieved.', 2.8),
 
-      waitFor(15)
+      waitFor(3)
     )
   );
 });

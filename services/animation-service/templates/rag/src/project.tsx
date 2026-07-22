@@ -3,13 +3,8 @@ import scene1 from './scenes/scene1';
 import scene2 from './scenes/scene2';
 import scene3 from './scenes/scene3';
 import scene4 from './scenes/scene4';
-import scene5 from './scenes/scene5';
 import scene6 from './scenes/scene6';
-import scene7 from './scenes/scene7';
 import scene8 from './scenes/scene8';
-import scene9 from './scenes/scene9';
-import scene10 from './scenes/scene10';
-import scene11 from './scenes/scene11';
 import scene12 from './scenes/scene12';
 import scene13 from './scenes/scene13';
 import scene14 from './scenes/scene14';
@@ -28,7 +23,7 @@ import scene26 from './scenes/scene26';
 import scene27 from './scenes/scene27';
 import scene28 from './scenes/scene28';
 import scene29 from './scenes/scene29';
-import scene30 from './scenes/scene30';
+
 
 /**
  * RAG Educational Video Presentation

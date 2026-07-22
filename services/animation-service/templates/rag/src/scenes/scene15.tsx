@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -10,6 +10,7 @@ import { popIn } from '../animations/pop';
 import { fadeIn } from '../animations/fade';
 import { slideInFrom } from '../animations/slide';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene15', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -38,6 +39,10 @@ export default makeScene2D('scene15', function* (view) {
             text={'Embedding Example'}
           />
         </Rect>
+        <Audio
+          src="/audio/female/step_7.wav"
+          play
+        />
 
         {/* Sentence 1 Card */}
         <Card
@@ -133,10 +138,15 @@ export default makeScene2D('scene15', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 18.3;
 
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[7] - elapsedTime
+  );
   yield* all(
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.y(10, 8),
+    cameraRef().scale(1.04, ragDurationsFemale[7]),
+    cameraRef().position.y(10, ragDurationsFemale[7]),
 
     chain(
       waitFor(1),
@@ -169,7 +179,7 @@ export default makeScene2D('scene15', function* (view) {
         2.8
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

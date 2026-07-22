@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt, Line } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Line, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -11,6 +11,7 @@ import { fadeIn } from '../animations/fade';
 import { drawIn } from '../animations/draw';
 import { pulseScale } from '../animations/pulse';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene22', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -87,6 +88,10 @@ export default makeScene2D('scene22', function* (view) {
           <Txt fontFamily={THEME.fonts.main} fontSize={15} fill={THEME.colors.success} text={'High recall ✓'} marginBottom={4} />
           <Txt fontFamily={THEME.fonts.main} fontSize={15} fill={THEME.colors.success} text={'High precision ✓'} />
         </Card>
+        <Audio
+          src="/audio/female/step_15.wav"
+          play
+        />
 
         {/* Caption */}
         <Caption
@@ -101,11 +106,16 @@ export default makeScene2D('scene22', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 24.3;
+
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[15] - elapsedTime
+  );
 
   yield* all(
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.y(10, 8),
-
+    cameraRef().scale(1.04, ragDurationsFemale[15]),
+    cameraRef().position.y(10, ragDurationsFemale[15]),
     chain(
       waitFor(1),
 
@@ -146,7 +156,7 @@ export default makeScene2D('scene22', function* (view) {
         2.6
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

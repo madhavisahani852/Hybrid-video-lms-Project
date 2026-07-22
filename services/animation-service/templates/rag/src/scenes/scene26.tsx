@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt, Line } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Line, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -8,6 +8,7 @@ import { fadeIn } from '../animations/fade';
 import { drawIn } from '../animations/draw';
 import { popIn } from '../animations/pop';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene26', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -42,6 +43,10 @@ export default makeScene2D('scene26', function* (view) {
             text={'Advantages of RAG'}
           />
         </Rect>
+        <Audio
+          src="/audio/female/step_19.wav"
+          play
+        />
 
         {/* List container */}
         <Rect layout direction={'column'} gap={22} y={-60} alignItems={'start'} x={-100}>
@@ -91,10 +96,16 @@ export default makeScene2D('scene26', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 29.2;
+
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[19] - elapsedTime
+  );
 
   yield* all(
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.y(-5, 8),
+    cameraRef().scale(1.04, ragDurationsFemale[19]),
+    cameraRef().position.y(-5, ragDurationsFemale[19]),
 
     chain(
       waitFor(1),
@@ -124,7 +135,7 @@ export default makeScene2D('scene26', function* (view) {
         2.6
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

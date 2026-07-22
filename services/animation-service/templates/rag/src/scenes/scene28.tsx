@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -8,6 +8,7 @@ import { Caption } from '../components/Caption';
 import { popIn } from '../animations/pop';
 import { fadeIn } from '../animations/fade';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene28', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -36,6 +37,10 @@ export default makeScene2D('scene28', function* (view) {
             text={'Real-world Applications'}
           />
         </Rect>
+        <Audio
+          src="/audio/female/step_21.wav"
+          play
+        />
 
         {/* 2×3 grid of application cards */}
         <Rect layout direction={'row'} gap={24} y={-10} wrap={'wrap'} width={1100} justifyContent={'center'}>
@@ -85,10 +90,16 @@ export default makeScene2D('scene28', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 25.4;
+
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[21] - elapsedTime
+  );
 
   yield* all(
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.y(-5, 8),
+    cameraRef().scale(1.04, ragDurationsFemale[21]),
+    cameraRef().position.y(-5, ragDurationsFemale[21]),
 
     chain(
       waitFor(1),
@@ -114,7 +125,7 @@ export default makeScene2D('scene28', function* (view) {
         2.8
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });

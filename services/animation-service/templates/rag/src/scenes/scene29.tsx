@@ -1,4 +1,4 @@
-import { makeScene2D, Rect, Txt } from '@revideo/2d';
+import { makeScene2D, Rect, Txt, Audio } from '@revideo/2d';
 import { all, chain, createRef, waitFor } from '@revideo/core';
 import { THEME } from '../utils/theme';
 import { Background } from '../components/Background';
@@ -10,6 +10,7 @@ import { fadeIn } from '../animations/fade';
 import { zoomIn } from '../animations/zoom';
 import { pulseScale } from '../animations/pulse';
 import { typeText } from '../animations/typing';
+import { ragDurationsFemale } from '../rag_durations_female';
 
 export default makeScene2D('scene29', function* (view) {
   const cameraRef = createRef<Rect>();
@@ -24,6 +25,7 @@ export default makeScene2D('scene29', function* (view) {
   const captionRef = createRef<Rect>();
 
   view.add(
+
     <Background>
       <Rect ref={cameraRef} size={['100%', '100%']} justifyContent={'center'} alignItems={'center'}>
 
@@ -63,6 +65,10 @@ export default makeScene2D('scene29', function* (view) {
             <Txt fontFamily={THEME.fonts.main} fontSize={17} fill={THEME.colors.text} fontWeight={700} text={'Self-Directing Retrieval'} marginBottom={8} />
             <Txt fontFamily={THEME.fonts.main} fontSize={14} fill={THEME.colors.textMuted} text={'Agents decide when and what to retrieve, iteratively refining answers through multi-step reasoning.'} textWrap={true} textAlign={'center'} />
           </Card>
+          <Audio
+            src="/audio/female/step_22.wav"
+            play
+          />
 
           <Card
             ref={trend2Ref}
@@ -118,10 +124,16 @@ export default makeScene2D('scene29', function* (view) {
   );
 
   const captionTxt = captionRef().children()[0] as Txt;
+  const elapsedTime = 5.6;
+
+  const remainingTime = Math.max(
+    0,
+    ragDurationsFemale[22] - elapsedTime
+  );
 
   yield* all(
-    cameraRef().scale(1.04, 8),
-    cameraRef().position.y(-10, 8),
+    cameraRef().scale(1.04, ragDurationsFemale[22]),
+    cameraRef().position.y(-10, ragDurationsFemale[22]),
 
     chain(
       waitFor(0.4),
@@ -148,7 +160,7 @@ export default makeScene2D('scene29', function* (view) {
         2.8
       ),
 
-      waitFor(15)
+      waitFor(remainingTime)
     )
   );
 });
