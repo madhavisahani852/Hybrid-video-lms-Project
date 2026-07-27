@@ -27,11 +27,18 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Directories setup
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
-const OUTPUT_DIR = path.join(ROOT_DIR, 'output');
-const TMP_DIR = path.join(ROOT_DIR, 'tmp');
 
-fs.ensureDirSync(OUTPUT_DIR);
-fs.ensureDirSync(TMP_DIR);
+// On Vercel, only /tmp is writable — use it for output and temp files
+const isVercel = process.env.VERCEL === '1';
+const OUTPUT_DIR = isVercel ? '/tmp/output' : path.join(ROOT_DIR, 'output');
+const TMP_DIR = isVercel ? '/tmp' : path.join(ROOT_DIR, 'tmp');
+
+try {
+  fs.ensureDirSync(OUTPUT_DIR);
+  fs.ensureDirSync(TMP_DIR);
+} catch (err) {
+  console.warn('[Server] Could not create directories (read-only fs?):', err.message);
+}
 
 app.use(express.static(PUBLIC_DIR));
 app.use('/output', express.static(OUTPUT_DIR));
