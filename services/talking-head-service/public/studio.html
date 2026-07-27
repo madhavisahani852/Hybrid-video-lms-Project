@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Talking-Head Video Studio | Programmatic $0 Pipeline</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Navbar / Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon"><i class="fa-solid fa-clapperboard"></i></div>
+        <div>
+          <h1>AvatarStream <span>AI</span></h1>
+          <p class="subtitle">Programmatic $0 Talking-Head Generator for Low-End Hardware</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <nav class="nav-tabs">
+          <a href="/studio.html" class="nav-tab active"><i class="fa-solid fa-film"></i> Studio</a>
+          <a href="/" class="nav-tab"><i class="fa-solid fa-book"></i> API Docs</a>
+        </nav>
+        <div class="hardware-badge">
+          <i class="fa-solid fa-microchip"></i> Low-End Friendly: <span>Cloud GPU Offloaded</span>
+        </div>
+        <button id="openSettingsBtn" class="btn btn-secondary">
+          <i class="fa-solid fa-key"></i> API Keys & Settings
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace-grid">
+      
+      <!-- Left Column: Input Controls -->
+      <section class="control-panel">
+        
+        <!-- Step 1: Script Studio -->
+        <div class="panel-card">
+          <div class="card-header">
+            <span class="step-num">1</span>
+            <h2>Script & Narration Studio</h2>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fa-solid fa-wand-magic-sparkles"></i> AI Topic Generator (Optional)</label>
+            <div class="input-with-button">
+              <input type="text" id="topicInput" placeholder="e.g. 5 Productivity Hacks for Creators...">
+              <button id="generateScriptBtn" class="btn btn-accent"><i class="fa-solid fa-bolt"></i> Write Script</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fa-solid fa-align-left"></i> Spoken Script Text</label>
+            <textarea id="scriptText" rows="5" placeholder="Enter or edit the spoken narration script for your 1-3 minute video clip..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group half">
+              <label><i class="fa-solid fa-microphone"></i> Voice Presenter</label>
+              <select id="voiceSelect">
+                <!-- Dynamically Populated -->
+              </select>
+            </div>
+            <div class="form-group half">
+              <label><i class="fa-solid fa-clock"></i> Target Duration</label>
+              <select id="durationSelect">
+                <option value="1">1 Minute Clip (~140 words)</option>
+                <option value="2">2 Minutes Clip (~280 words)</option>
+                <option value="3">3 Minutes Clip (~420 words)</option>
+                <option value="0.5">30 Seconds Short Clip</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Avatar Presenter Studio -->
+        <div class="panel-card">
+          <div class="card-header">
+            <span class="step-num">2</span>
+            <h2>Avatar Presenter Studio</h2>
+          </div>
+
+          <div class="avatar-tabs">
+            <button class="tab-btn active" data-tab="ai-avatar">AI Generated Avatar</button>
+            <button class="tab-btn" data-tab="upload-avatar">Upload Custom Photo</button>
+          </div>
+
+          <div class="tab-content active" id="ai-avatar-tab">
+            <div class="form-group">
+              <label><i class="fa-solid fa-image"></i> Avatar Prompt</label>
+              <textarea id="avatarPrompt" rows="2" placeholder="e.g. Professional tech presenter, 28 year old male, studio lighting, hyperrealistic 8k portrait"></textarea>
+            </div>
+            <button id="generateAvatarBtn" class="btn btn-secondary btn-full">
+              <i class="fa-solid fa-paint-brush"></i> Generate Presenter Image ($0 FLUX)
+            </button>
+          </div>
+
+          <div class="tab-content" id="upload-avatar-tab">
+            <div class="file-dropzone" id="dropzone">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <p>Drag & drop photo or click to upload</p>
+              <input type="file" id="avatarFileInput" accept="image/*" hidden>
+            </div>
+          </div>
+
+          <!-- Avatar Preview -->
+          <div class="avatar-preview-container">
+            <div class="preview-box" id="avatarPreviewBox">
+              <span class="placeholder-text"><i class="fa-regular fa-image"></i> Presenter Image Preview</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Trigger Video Pipeline -->
+        <div class="panel-card highlight-card">
+          <button id="renderVideoBtn" class="btn btn-primary btn-large btn-full">
+            <i class="fa-solid fa-film"></i> Generate 1-3 Min Talking Head Video ($0)
+          </button>
+        </div>
+
+      </section>
+
+      <!-- Right Column: Video Output & Live Tracker -->
+      <section class="output-panel">
+        
+        <div class="panel-card full-height">
+          <div class="card-header">
+            <span class="step-num">3</span>
+            <h2>Video Player & Pipeline Progress</h2>
+          </div>
+
+          <!-- Progress Tracker Bar -->
+          <div class="progress-box hidden" id="progressBox">
+            <div class="status-header">
+              <span id="jobStageText"><i class="fa-solid fa-spinner fa-spin"></i> Initializing Pipeline...</span>
+              <span id="jobPercentText">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+            <p class="tracker-note"><i class="fa-solid fa-info-circle"></i> Offloading heavy video rendering to Hugging Face Cloud GPUs...</p>
+          </div>
+
+          <!-- Video Display Vault -->
+          <div class="video-vault" id="videoVault">
+            <div class="empty-state" id="emptyState">
+              <i class="fa-solid fa-circle-play"></i>
+              <h3>Your Generated Video Will Appear Here</h3>
+              <p>Configure your script and presenter on the left panel, then click generate.</p>
+            </div>
+
+            <div class="player-container hidden" id="playerContainer">
+              <video id="outputVideoPlayer" controls autoplay loop class="main-video"></video>
+              <div class="video-meta">
+                <span class="meta-badge"><i class="fa-solid fa-circle-check"></i> HD Rendered</span>
+                <span class="meta-badge"><i class="fa-solid fa-music"></i> Neural Audio Synced</span>
+                <a id="downloadVideoBtn" download class="btn btn-success">
+                  <i class="fa-solid fa-download"></i> Download MP4 Clip
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay hidden" id="settingsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-sliders"></i> API Keys & Cloud Workaround Settings</h3>
+        <button class="close-btn" id="closeSettingsBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Google Gemini API Key (Optional)</label>
+          <input type="password" id="geminiKeyInput" placeholder="AIzaSy...">
+          <small>Unlocks custom AI scriptwriting and prompt synthesis. Free tier allowed.</small>
+        </div>
+
+        <div class="form-group">
+          <label>Hugging Face Access Token (Optional)</label>
+          <input type="password" id="hfTokenInput" placeholder="hf_...">
+          <small>Bypasses public queue limits on Hugging Face ZeroGPU Spaces.</small>
+        </div>
+
+        <div class="form-group">
+          <label>Custom Colab / Kaggle Worker URL (Optional Workaround)</label>
+          <input type="text" id="colabUrlInput" placeholder="https://xxxx.ngrok-free.app">
+          <small>Specify your free Google Colab FastAPI endpoint if self-hosting SadTalker/LivePortrait.</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="saveSettingsBtn">Save Configuration</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

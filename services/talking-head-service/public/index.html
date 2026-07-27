@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Talking-Head Service | REST API Documentation</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ─── API Docs specific styles ─── */
+    .api-layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Hero */
+    .api-hero {
+      text-align: center;
+      padding: 48px 24px 32px;
+      background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(6,182,212,0.08));
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(139,92,246,0.2);
+      margin-bottom: 40px;
+    }
+    .api-hero h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .api-hero h1 span {
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .api-hero p {
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .api-base-badge {
+      display: inline-block;
+      margin-top: 16px;
+      background: rgba(6,182,212,0.12);
+      border: 1px solid rgba(6,182,212,0.3);
+      color: var(--accent-cyan);
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Quick reference table */
+    .quick-ref {
+      margin-bottom: 40px;
+    }
+    .quick-ref h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .ref-table th {
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .ref-table td {
+      padding: 12px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(55,65,81,0.4);
+    }
+    .ref-table tr:last-child td {
+      border-bottom: none;
+    }
+    .ref-table tr:hover td {
+      background: rgba(139,92,246,0.04);
+    }
+
+    /* Method badges */
+    .method {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Courier New', monospace;
+    }
+    .method-get { background: rgba(16,185,129,0.15); color: #10b981; }
+    .method-post { background: rgba(59,130,246,0.15); color: #3b82f6; }
+
+    /* Endpoint path */
+    .endpoint-path {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    /* ─── Detail Cards ─── */
+    .endpoint-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 24px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .endpoint-card:hover {
+      border-color: var(--accent-purple);
+    }
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 24px;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid var(--card-border);
+      cursor: pointer;
+      user-select: none;
+    }
+    .endpoint-header .method {
+      font-size: 13px;
+      padding: 4px 12px;
+    }
+    .endpoint-header .path {
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .endpoint-header .toggle-icon {
+      margin-left: auto;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+    .endpoint-header .toggle-icon.open {
+      transform: rotate(180deg);
+    }
+    .endpoint-body {
+      padding: 0 24px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+    }
+    .endpoint-body.open {
+      max-height: 3000px;
+      padding: 24px;
+    }
+
+    /* Description */
+    .endpoint-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    /* Schema sections */
+    .schema-section {
+      margin-bottom: 20px;
+    }
+    .schema-section h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .schema-section h4 .badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .badge-required { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .badge-optional { background: rgba(234,179,8,0.15); color: #eab308; }
+
+    .schema-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 13px;
+    }
+    .schema-table th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .schema-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(55,65,81,0.3);
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+    .schema-table tr:last-child td { border-bottom: none; }
+    .schema-table .field-name { color: var(--accent-cyan); }
+    .schema-table .field-type { color: var(--accent-purple); }
+    .schema-table .field-desc {
+      font-family: var(--font-family);
+      color: var(--text-muted);
+    }
+
+    /* Code blocks */
+    .code-block {
+      background: #0d1117;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .code-header span {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-muted);
+    }
+    .code-header button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .code-header button:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-main);
+    }
+    .code-block pre {
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #e6edf3;
+    }
+    .code-block code {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    }
+
+    /* Response example */
+    .response-example {
+      margin-bottom: 16px;
+    }
+    .response-example h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .response-status {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(16,185,129,0.12);
+      color: #10b981;
+    }
+
+    /* Copy toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent-green);
+      color: #000;
+      padding: 10px 24px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .copy-toast.show {
+      opacity: 1;
+    }
+
+    /* Auth section */
+    .auth-box {
+      background: linear-gradient(135deg, rgba(234,179,8,0.08), rgba(139,92,246,0.08));
+      border: 1px solid rgba(234,179,8,0.2);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin-bottom: 32px;
+    }
+    .auth-box h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .auth-box p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .auth-box code {
+      background: rgba(255,255,255,0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--accent-cyan);
+    }
+
+    @media (max-width: 768px) {
+      .api-hero h1 { font-size: 26px; }
+      .endpoint-header .path { font-size: 13px; }
+      .ref-table { font-size: 12px; }
+      .ref-table th, .ref-table td { padding: 10px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container api-layout">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon"><i class="fa-solid fa-clapperboard"></i></div>
+        <div>
+          <h1>AvatarStream <span>AI</span></h1>
+          <p class="subtitle">Programmatic $0 Talking-Head Generator API</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <nav class="nav-tabs">
+          <a href="/studio.html" class="nav-tab"><i class="fa-solid fa-film"></i> Studio</a>
+          <a href="/" class="nav-tab active"><i class="fa-solid fa-book"></i> API Docs</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <div class="api-hero">
+      <h1><span>REST API</span> Documentation</h1>
+      <p>Generate AI talking-head videos programmatically. All endpoints are free and require no authentication — optional API keys unlock premium features.</p>
+      <div class="api-base-badge">BASE URL: <span id="baseUrlDisplay">Detecting...</span></div>
+    </div>
+
+    <!-- Authentication -->
+    <div class="auth-box">
+      <h3><i class="fa-solid fa-shield-halved" style="color:#eab308;"></i> Authentication</h3>
+      <p>
+        All endpoints are <strong>unauthenticated by default</strong> — you can use them immediately with no API key.
+        For premium features (AI scriptwriting via Gemini, higher Hugging Face queue priority),
+        pass your keys in the request body or set them as environment variables on the server.
+        See the <code>apiKey</code>, <code>hfToken</code>, and <code>colabUrl</code> optional parameters on individual endpoints.
+      </p>
+    </div>
+
+    <!-- Quick Reference Table -->
+    <div class="quick-ref">
+      <h2><i class="fa-solid fa-bolt" style="color:var(--accent-cyan);"></i> Endpoints Overview</h2>
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="method method-get">GET</span></td>
+            <td class="endpoint-path">/api/voices</td>
+            <td>List available TTS voices</td>
+          </tr>
+          <tr>
+            <td><span class="method method-post">POST</span></td>
+            <td class="endpoint-path">/api/generate-script</td>
+            <td>Generate a video script from a topic</td>
+          </tr>
+          <tr>
+            <td><span class="method method-post">POST</span></td>
+            <td class="endpoint-path">/api/generate-avatar</td>
+            <td>Generate an AI presenter portrait</td>
+          </tr>
+          <tr>
+            <td><span class="method method-post">POST</span></td>
+            <td class="endpoint-path">/api/upload-avatar</td>
+            <td>Upload a custom presenter photo</td>
+          </tr>
+          <tr>
+            <td><span class="method method-post">POST</span></td>
+            <td class="endpoint-path">/api/generate-video</td>
+            <td>Start the full video generation pipeline</td>
+          </tr>
+          <tr>
+            <td><span class="method method-get">GET</span></td>
+            <td class="endpoint-path">/api/job-status/:jobId</td>
+            <td>Poll asynchronous video job progress</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ─── ENDPOINT DETAILS ─── -->
+
+    <!-- 1. GET /api/voices -->
+    <div class="endpoint-card">
+      <div class="endpoint-header" onclick="toggleEndpoint(this)">
+        <span class="method method-get">GET</span>
+        <span class="path">/api/voices</span>
+        <span style="color:var(--text-muted);font-size:13px;margin-left:4px;">List available TTS voices</span>
+        <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-desc">
+          Returns the map of available Microsoft Edge neural TTS voices. These voices are used in the video generation pipeline to narrate your script. Each voice key follows the format <code>language-REGION-NameNeural</code>.
+        </div>
+
+        <div class="schema-section">
+          <h4><i class="fa-regular fa-rectangle-list" style="color:var(--accent-cyan);"></i> Request</h4>
+          <p style="font-size:13px;color:var(--text-muted);">No request body required. This endpoint is unauthenticated.</p>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span><i class="fa-solid fa-terminal"></i> curl</span>
+            <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl {{BASE_URL}}/api/voices</code></pre>
+        </div>
+
+        <div class="response-example">
+          <h4>Response <span class="response-status">200 OK</span></h4>
+          <div class="code-block">
+            <div class="code-header">
+              <span><i class="fa-regular fa-file-lines"></i> JSON</span>
+              <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>{
+  "voices": {
+    "en-US-ChristopherNeural": "Male (US - Christopher)",
+    "en-US-JennyNeural": "Female (US - Jenny)",
+    "en-US-GuyNeural": "Male (US - Guy)",
+    "en-GB-SoniaNeural": "Female (UK - Sonia)",
+    "en-GB-RyanNeural": "Male (UK - Ryan)",
+    "en-IN-PrabhatNeural": "Male (India - Prabhat)",
+    "en-IN-NeerjaNeural": "Female (India - Neerja)"
+  }
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. POST /api/generate-script -->
+    <div class="endpoint-card">
+      <div class="endpoint-header" onclick="toggleEndpoint(this)">
+        <span class="method method-post">POST</span>
+        <span class="path">/api/generate-script</span>
+        <span style="color:var(--text-muted);font-size:13px;margin-left:4px;">Generate AI script from topic</span>
+        <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-desc">
+          Generates a complete video script, title, avatar prompt, and key takeaways from a topic. Uses Google Gemini 1.5 Flash if an API key is provided, otherwise falls back to a built-in template engine that works without any credentials.
+        </div>
+
+        <div class="schema-section">
+          <h4><i class="fa-regular fa-rectangle-list" style="color:var(--accent-cyan);"></i> Request Body</h4>
+          <table class="schema-table">
+            <thead>
+              <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="field-name">topic</span></td>
+                <td><span class="field-type">string</span></td>
+                <td class="field-desc">The video topic (e.g. "5 productivity hacks") <span class="badge badge-required">required</span></td>
+              </tr>
+              <tr>
+                <td><span class="field-name">durationMinutes</span></td>
+                <td><span class="field-type">number</span></td>
+                <td class="field-desc">Target video length in minutes. Default: <code>1</code>. Supports: <code>0.5</code>, <code>1</code>, <code>2</code>, <code>3</code>.</td>
+              </tr>
+              <tr>
+                <td><span class="field-name">targetAudience</span></td>
+                <td><span class="field-type">string</span></td>
+                <td class="field-desc">Target audience for tone. Default: <code>"general"</code>.</td>
+              </tr>
+              <tr>
+                <td><span class="field-name">apiKey</span></td>
+                <td><span class="field-type">string</span></td>
+                <td class="field-desc"><span class="badge badge-optional">optional</span> Google Gemini API key. If not provided, uses server env var or template fallback.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span><i class="fa-solid fa-terminal"></i> curl</span>
+            <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -X POST {{BASE_URL}}/api/generate-script \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "topic": "AI video creation for beginners",
+    "durationMinutes": 1,
+    "targetAudience": "content creators"
+  }'</code></pre>
+        </div>
+
+        <div class="response-example">
+          <h4>Response <span class="response-status">200 OK</span></h4>
+          <div class="code-block">
+            <div class="code-header">
+              <span><i class="fa-regular fa-file-lines"></i> JSON</span>
+              <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>{
+  "success": true,
+  "title": "Mastering AI video creation for beginners in 1 Minute",
+  "scriptText": "Welcome to today's quick update on AI video creation for beginners! ...",
+  "avatarPrompt": "A confident modern professional presenter, photorealistic 8k portrait ...",
+  "keyTakeaways": [
+    "Key trends in AI video creation for beginners",
+    "Automated zero-cost workflows",
+    "High engagement content strategy"
+  ]
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. POST /api/generate-avatar -->
+    <div class="endpoint-card">
+      <div class="endpoint-header" onclick="toggleEndpoint(this)">
+        <span class="method method-post">POST</span>
+        <span class="path">/api/generate-avatar</span>
+        <span style="color:var(--text-muted);font-size:13px;margin-left:4px;">Generate AI presenter portrait</span>
+        <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-desc">
+          Generates a presenter portrait image from a text prompt using a 3-tier fallback system: <strong>Pollinations.ai</strong> (fast, free, no key) → <strong>Hugging Face FLUX</strong> (higher quality, needs HF token) → <strong>Procedural PNG</strong> (100% guaranteed, zero dependencies). The response includes the server-side path to the generated image.
+        </div>
+
+        <div class="schema-section">
+          <h4><i class="fa-regular fa-rectangle-list" style="color:var(--accent-cyan);"></i> Request Body</h4>
+          <table class="schema-table">
+            <thead>
+              <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="field-name">prompt</span></td>
+                <td><span class="field-type">string</span></td>
+                <td class="field-desc">Text description of the presenter image. Default: professional tech presenter portrait. <span class="badge badge-required">required</span></td>
+              </tr>
+              <tr>
+                <td><span class="field-name">voice</span></td>
+                <td><span class="field-type">string</span></td>
+                <td class="field-desc"><span class="badge badge-optional">optional</span> Voice key to match avatar gender (auto-adjusts the prompt).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span><i class="fa-solid fa-terminal"></i> curl</span>
+            <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -X POST {{BASE_URL}}/api/generate-avatar \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "prompt": "Professional tech presenter, studio lighting, hyperrealistic 8k portrait"
+  }'</code></pre>
+        </div>
+
+        <div class="response-example">
+          <h4>Response <span class="response-status">200 OK</span></h4>
+          <div class="code-block">
+            <div class="code-header">
+              <span><i class="fa-regular fa-file-lines"></i> JSON</span>
+              <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>{
+  "success": true,
+  "imagePath": "/app/tmp/avatar_1712345678901.png",
+  "filename": "avatar_1712345678901.png"
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. POST /api/upload-avatar -->
+    <div class="endpoint-card">
+      <div class="endpoint-header" onclick="toggleEndpoint(this)">
+        <span class="method method-post">POST</span>
+        <span class="path">/api/upload-avatar</span>
+        <span style="color:var(--text-muted);font-size:13px;margin-left:4px;">Upload custom presenter photo</span>
+        <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-desc">
+          Upload a custom image to use as the avatar presenter in your video. Accepts standard image formats (PNG, JPG, WebP). The image is stored server-side and the returned path can be passed directly to the video generation endpoint.
+        </div>
+
+        <div class="schema-section">
+          <h4><i class="fa-regular fa-rectangle-list" style="color:var(--accent-cyan);"></i> Request (multipart/form-data)</h4>
+          <table class="schema-table">
+            <thead>
+              <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="field-name">avatarFile</span></td>
+                <td><span class="field-type">file</span></td>
+                <td class="field-desc">Image file (PNG, JPG, WebP). Max size determined by server config. <span class="badge badge-required">required</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span><i class="fa-solid fa-terminal"></i> curl</span>
+            <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -X POST {{BASE_URL}}/api/upload-avatar \
+  -F 'avatarFile=@/path/to/your/photo.png'</code></pre>
+        </div>
+
+        <div class="response-example">
+          <h4>Response <span class="response-status">200 OK</span></h4>
+          <div class="code-block">
+            <div class="code-header">
+              <span><i class="fa-regular fa-file-lines"></i> JSON</span>
+              <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>{
+  "success": true,
+  "imagePath": "/app/tmp/upload_1712345678901_photo.png",
+  "filename": "upload_1712345678901_photo.png"
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. POST /api/generate-video -->
+    <div class="endpoint-card">
+      <div class="endpoint-header" onclick="toggleEndpoint(this)">
+        <span class="method method-post">POST</span>
+        <span class="path">/api/generate-video</span>
+        <span style="color:var(--text-muted);font-size:13px;margin-left:4px;">Start video generation pipeline</span>
+        <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-desc">
+          Triggers the full asynchronous video generation pipeline. The pipeline runs in the background: <strong>TTS</strong> → <strong>Audio Chunking</strong> → <strong>Talking-Head Rendering</strong> → <strong>FFmpeg Stitch</strong>. Returns a <code>jobId</code> immediately — poll <code>GET /api/job-status/:jobId</code> for progress.
+        </div>
+
+        <div class="schema-section">
+          <h4><i class="fa-regular fa-rectangle-list" style="color:var(--accent-cyan);"></i> Request Body</h4>
+          <table class="schema-table">
+            <thead>
+              <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="field-name">scriptText</span></td>
+                <td><span class="field-type">string</span></td>
+                <td class="field-desc">The full spoken narration text. <span class="badge badge-required">required</span></td>
+              </tr>
+              <tr>
+                <td><span class="field-name">imagePath</span></td>
+                <td><span class="field-type">string</span></td>
+                <td class="field-desc">Server-side path to the avatar image (from /api/generate-avatar or /api/upload-avatar). <span class="badge badge-required">required</span></td>
+              </tr>
+              <tr>
+                <td><span class="field-name">voice</span></td>
+                <td><span class="field-type">string</span></td>
+                <td class="field-desc">TTS voice key from /api/voices. Default: <code>"en-US-ChristopherNeural"</code>.</td>
+              </tr>
+              <tr>
+                <td><span class="field-name">hfToken</span></td>
+                <td><span class="field-type">string</span></td>
+                <td class="field-desc"><span class="badge badge-optional">optional</span> Hugging Face token for higher GPU queue priority.</td>
+              </tr>
+              <tr>
+                <td><span class="field-name">colabUrl</span></td>
+                <td><span class="field-type">string</span></td>
+                <td class="field-desc"><span class="badge badge-optional">optional</span> Custom Colab/Kaggle GPU worker endpoint.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="schema-section">
+          <h4><i class="fa-regular fa-clock" style="color:var(--accent-green);"></i> Pipeline Stages</h4>
+          <table class="schema-table">
+            <thead>
+              <tr><th>Stage</th><th>Progress</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>TTS</td><td>10–20%</td><td>Convert script text to MP3 via edge-tts</td></tr>
+              <tr><td>Audio Chunk</td><td>40%</td><td>Split long audio into 20s segments</td></tr>
+              <tr><td>Talking-Head</td><td>40–80%</td><td>Each chunk sent to HF Space for lipsync</td></tr>
+              <tr><td>FFmpeg Stitch</td><td>90%</td><td>Concatenate clips + overlay master audio</td></tr>
+              <tr><td>Complete</td><td>100%</td><td>Final MP4 ready at finalVideoUrl</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span><i class="fa-solid fa-terminal"></i> curl</span>
+            <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl -X POST {{BASE_URL}}/api/generate-video \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "scriptText": "Welcome to this quick tutorial on AI video generation...",
+    "imagePath": "/app/tmp/avatar_1712345678901.png",
+    "voice": "en-US-JennyNeural",
+    "hfToken": "hf_..."
+  }'</code></pre>
+        </div>
+
+        <div class="response-example">
+          <h4>Response <span class="response-status">202 Accepted</span></h4>
+          <div class="code-block">
+            <div class="code-header">
+              <span><i class="fa-regular fa-file-lines"></i> JSON</span>
+              <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>{
+  "success": true,
+  "jobId": "job_1712345678901_a1b2c3"
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. GET /api/job-status/:jobId -->
+    <div class="endpoint-card">
+      <div class="endpoint-header" onclick="toggleEndpoint(this)">
+        <span class="method method-get">GET</span>
+        <span class="path">/api/job-status/:jobId</span>
+        <span style="color:var(--text-muted);font-size:13px;margin-left:4px;">Poll video generation progress</span>
+        <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
+      </div>
+      <div class="endpoint-body">
+        <div class="endpoint-desc">
+          Poll the progress of an asynchronous video generation job. The response includes the current stage, percentage progress, and on completion a <code>finalVideoUrl</code> to download or stream the MP4. Poll every 2–3 seconds for a smooth user experience.
+        </div>
+
+        <div class="schema-section">
+          <h4><i class="fa-regular fa-rectangle-list" style="color:var(--accent-cyan);"></i> Path Parameters</h4>
+          <table class="schema-table">
+            <thead>
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="field-name">jobId</span></td>
+                <td><span class="field-type">string</span></td>
+                <td class="field-desc">The job ID returned from POST /api/generate-video. <span class="badge badge-required">required</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span><i class="fa-solid fa-terminal"></i> curl</span>
+            <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <pre><code>curl {{BASE_URL}}/api/job-status/job_1712345678901_a1b2c3</code></pre>
+        </div>
+
+        <div class="response-example">
+          <h4>Response (Processing) <span class="response-status">200 OK</span></h4>
+          <div class="code-block">
+            <div class="code-header">
+              <span><i class="fa-regular fa-file-lines"></i> JSON</span>
+              <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>{
+  "id": "job_1712345678901_a1b2c3",
+  "status": "processing",
+  "stage": "Rendering Talking-Head Clip (1/5)...",
+  "progress": 48,
+  "createdAt": "2025-04-04T12:00:00.000Z",
+  "finalVideoUrl": null,
+  "error": null
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="response-example">
+          <h4>Response (Completed) <span class="response-status">200 OK</span></h4>
+          <div class="code-block">
+            <div class="code-header">
+              <span><i class="fa-regular fa-file-lines"></i> JSON</span>
+              <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>{
+  "id": "job_1712345678901_a1b2c3",
+  "status": "completed",
+  "stage": "Video Render Complete!",
+  "progress": 100,
+  "createdAt": "2025-04-04T12:00:00.000Z",
+  "finalVideoUrl": "/output/talking_head_job_1712345678901_a1b2c3.mp4",
+  "error": null
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="response-example">
+          <h4>Response (Failed) <span class="response-status">200 OK</span></h4>
+          <div class="code-block">
+            <div class="code-header">
+              <span><i class="fa-regular fa-file-lines"></i> JSON</span>
+              <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            <pre><code>{
+  "id": "job_1712345678901_a1b2c3",
+  "status": "failed",
+  "stage": "Generation Failed",
+  "progress": 48,
+  "createdAt": "2025-04-04T12:00:00.000Z",
+  "finalVideoUrl": null,
+  "error": "Edge-TTS command not found. Install: pip install edge-tts"
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- End-to-End Example -->
+    <div class="panel-card" style="margin-top:8px;margin-bottom:40px;">
+      <div class="card-header">
+        <i class="fa-solid fa-link" style="color:var(--accent-cyan);font-size:20px;"></i>
+        <h2>End-to-End Example</h2>
+      </div>
+      <p style="font-size:14px;color:var(--text-muted);margin-bottom:12px;line-height:1.7;">
+        A complete workflow to generate a talking-head video from scratch — no API keys required.
+        <strong style="color:#eab308;">Note:</strong> This example uses <code>jq</code> for JSON parsing — install it with
+        <code>apt install jq</code> or <code>brew install jq</code>. Alternatively, use <code>grep</code>/<code>sed</code> to extract fields.
+      </p>
+      <div class="code-block">
+        <div class="code-header">
+          <span><i class="fa-solid fa-terminal"></i> bash</span>
+          <button onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+        <pre><code>#!/bin/bash
+BASE="{{BASE_URL}}"
+
+# Step 1: Generate a script
+SCRIPT=$(curl -s -X POST $BASE/api/generate-script \
+  -H 'Content-Type: application/json' \
+  -d '{"topic":"5 productivity hacks","durationMinutes":1}')
+echo "$SCRIPT" | jq '.scriptText'
+
+# Step 2: Generate an avatar
+AVATAR=$(curl -s -X POST $BASE/api/generate-avatar \
+  -H 'Content-Type: application/json' \
+  -d '{"prompt":"Professional tech presenter, studio lighting"}')
+IMAGE_PATH=$(echo "$AVATAR" | jq -r '.imagePath')
+
+# Step 3: Start video generation
+JOB=$(curl -s -X POST $BASE/api/generate-video \
+  -H 'Content-Type: application/json' \
+  -d "{\"scriptText\": $(echo "$SCRIPT" | jq '.scriptText'), \"imagePath\": \"$IMAGE_PATH\"}")
+JOB_ID=$(echo "$JOB" | jq -r '.jobId')
+
+# Step 4: Poll until complete
+while true; do
+  STATUS=$(curl -s $BASE/api/job-status/$JOB_ID)
+  echo "$STATUS" | jq '{stage, progress}'
+  if [ "$(echo "$STATUS" | jq -r '.status')" = "completed" ]; then
+    VIDEO_URL=$(echo "$STATUS" | jq -r '.finalVideoUrl')
+    echo "Video ready: $BASE$VIDEO_URL"
+    break
+  fi
+  if [ "$(echo "$STATUS" | jq -r '.status')" = "failed" ]; then
+    echo "Failed: $(echo "$STATUS" | jq -r '.error')"
+    break
+  fi
+  sleep 2
+done</code></pre>
+      </div>
+    </div>
+
+    <!-- Error Codes -->
+    <div class="panel-card" style="margin-bottom:40px;">
+      <div class="card-header">
+        <i class="fa-solid fa-triangle-exclamation" style="color:#eab308;font-size:20px;"></i>
+        <h2>Error Codes</h2>
+      </div>
+      <table class="schema-table" style="border:1px solid var(--card-border);">
+        <thead>
+          <tr><th>Status</th><th>Error</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="method" style="background:rgba(239,68,68,0.1);color:#ef4444;">400</span></td>
+            <td>Missing required fields</td>
+            <td class="field-desc">One or more required request body parameters are missing.</td>
+          </tr>
+          <tr>
+            <td><span class="method" style="background:rgba(239,68,68,0.1);color:#ef4444;">404</span></td>
+            <td>Job not found</td>
+            <td class="field-desc">The requested jobId does not exist (expired or invalid).</td>
+          </tr>
+          <tr>
+            <td><span class="method" style="background:rgba(239,68,68,0.1);color:#ef4444;">500</span></td>
+            <td>Internal server error</td>
+            <td class="field-desc">An unexpected error occurred. Check server logs or try again.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <footer style="text-align:center;padding:24px 0 12px;border-top:1px solid var(--card-border);color:var(--text-muted);font-size:13px;">
+      <p>AvatarStream AI — Free &amp; Open talking-head video API. <a href="/studio.html" style="color:var(--accent-cyan);text-decoration:none;">Open Video Studio →</a></p>
+    </footer>
+  </div>
+
+  <!-- Copy toast -->
+  <div class="copy-toast" id="copyToast">Copied!</div>
+
+  <script>
+    // ─── Auto-detect BASE URL ───
+    // Replaces {{BASE_URL}} in all code examples with the actual origin
+    function resolveBaseUrl() {
+      const origin = window.location.origin;
+      document.getElementById('baseUrlDisplay').textContent = origin;
+      
+      // Replace {{BASE_URL}} in all code blocks
+      document.querySelectorAll('.code-block pre code').forEach(el => {
+        el.textContent = el.textContent.replace(/\{\{BASE_URL\}\}/g, origin);
+      });
+    }
+
+    // Toggle endpoint detail sections
+    function toggleEndpoint(header) {
+      const body = header.nextElementSibling;
+      const icon = header.querySelector('.toggle-icon');
+      body.classList.toggle('open');
+      icon.classList.toggle('open');
+    }
+
+    // On page load: resolve URLs + open all endpoints
+    document.addEventListener('DOMContentLoaded', () => {
+      resolveBaseUrl();
+      document.querySelectorAll('.endpoint-body').forEach(body => {
+        body.classList.add('open');
+      });
+      document.querySelectorAll('.toggle-icon').forEach(icon => {
+        icon.classList.add('open');
+      });
+    });
+
+    // Copy code to clipboard
+    function copyCode(btn) {
+      const pre = btn.closest('.code-block').querySelector('pre code');
+      const text = pre.textContent;
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          const toast = document.getElementById('copyToast');
+          toast.classList.add('show');
+          setTimeout(() => toast.classList.remove('show'), 2000);
+        })
+        .catch(() => {
+          // Fallback for non-HTTPS environments
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          const toast = document.getElementById('copyToast');
+          toast.classList.add('show');
+          setTimeout(() => toast.classList.remove('show'), 2000);
+        });
+    }
+  </script>
+</body>
+</html>
