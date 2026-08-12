@@ -17,11 +17,9 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
     FFMPEG_PATH=/usr/bin/ffmpeg
 
-COPY package*.json ./
+COPY . .
 
 RUN npm install
-
-COPY . .
 
 EXPOSE 3000
 

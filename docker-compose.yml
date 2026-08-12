@@ -10,7 +10,6 @@ services:
       - "8000:8000"
     volumes:
       - ./services/talking-head-service:/app
-      - /app/node_modules
       - ./shared:/app/shared
       - ./examples:/app/examples
     environment:
@@ -35,7 +34,6 @@ services:
       - "3000:3000"
     volumes:
       - ./services/animation-service:/app
-      - /app/node_modules
       - ./shared:/app/shared
       - ./examples:/app/examples
     environment:
