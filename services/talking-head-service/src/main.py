@@ -23,13 +23,10 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Register custom exception handlers for consistent JSON errors & logging
 register_exception_handlers(app)
 
-# In-memory job state store
 jobs_db: Dict[str, Dict[str, Any]] = {}
 
-# Voice-to-gender mapping for avatar selection
 VOICE_GENDER = {
     "en-US-ChristopherNeural": "male",
     "en-US-GuyNeural": "male",
@@ -99,7 +96,7 @@ async def generate_avatar(
         audio_bytes=audio_bytes,
     )
 
-    # Step 4: Record initial job state in jobs_db
+    # Step 4: Record initial job state
     jobs_db[job_id] = {
         "job_id": job_id,
         "status": "queued",
@@ -113,7 +110,7 @@ async def generate_avatar(
         "gender": gender,
     }
 
-    # Step 5: Dispatch background task using saved file paths
+    # Step 5: Dispatch background pipeline
     background_tasks.add_task(
         run_talking_head_pipeline,
         job_id,
