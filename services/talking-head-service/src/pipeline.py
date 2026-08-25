@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 import cv2
+
 from src.exceptions import PipelineError
 from src.logging_config import get_logger
 

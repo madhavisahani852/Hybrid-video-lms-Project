@@ -3,6 +3,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 from fastapi import UploadFile
+
 from src.config import (
     ALLOWED_AUDIO_EXTENSIONS,
     ALLOWED_IMAGE_EXTENSIONS,
