@@ -79,9 +79,7 @@ async def generate_avatar(
     # Determine avatar gender from selected voice
     gender = get_voice_gender(voice)
 
-    logger.info(
-        f"Voice '{voice}' mapped to avatar gender '{gender}'."
-    )
+    logger.info(f"Voice '{voice}' mapped to avatar gender '{gender}'.")
 
     # Step 2: Generate unique job ID & timestamp
     job_id = f"job_{uuid.uuid4().hex[:12]}"
@@ -142,9 +140,7 @@ def get_job_status(job_id: str):
     logger.info(f"Querying job status for job_id='{job_id}'")
 
     if job_id not in jobs_db:
-        logger.warning(
-            f"Job status query failed: job '{job_id}' not found."
-        )
+        logger.warning(f"Job status query failed: job '{job_id}' not found.")
         raise JobNotFoundError(job_id)
 
     return JobStatusResponse(**jobs_db[job_id])
