@@ -3,8 +3,9 @@ from datetime import datetime, timezone
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from src.logging_config import get_logger
 from starlette.exceptions import HTTPException as StarletteHTTPException
+
+from src.logging_config import get_logger
 
 logger = get_logger("exceptions")
 
