@@ -136,9 +136,7 @@ def test_generate_avatar_success_job_creation():
 
     job_id = body["job_id"]
 
-    status_response = client.get(
-        f"/api/v1/avatar/jobs/{job_id}"
-    )
+    status_response = client.get(f"/api/v1/avatar/jobs/{job_id}")
 
     assert status_response.status_code == 200
 
@@ -377,9 +375,7 @@ def test_generate_oversized_image():
 
 
 def test_get_job_status_nonexistent():
-    response = client.get(
-        "/api/v1/avatar/jobs/nonexistent_job_12345"
-    )
+    response = client.get("/api/v1/avatar/jobs/nonexistent_job_12345")
 
     assert response.status_code == 404
     assert response.json()["error_code"] == "JOB_NOT_FOUND"
@@ -430,10 +426,7 @@ def test_pipeline_controlled_failure_state():
 
     error_msg = jobs_db[job_id]["error_message"].lower()
 
-    assert (
-        "not implemented" in error_msg
-        or "inference" in error_msg
-    )
+    assert "not implemented" in error_msg or "inference" in error_msg
 
     assert jobs_db[job_id]["status"] != "completed"
 
@@ -443,9 +436,7 @@ def test_pipeline_controlled_failure_state():
 
 
 def test_validate_video_output_nonexistent():
-    assert validate_video_output(
-        "nonexistent_file_xyz.mp4"
-    ) is False
+    assert validate_video_output("nonexistent_file_xyz.mp4") is False
 
 
 def test_validate_video_output_empty_file(tmp_path):
@@ -453,9 +444,7 @@ def test_validate_video_output_empty_file(tmp_path):
 
     empty_file.write_bytes(b"")
 
-    assert validate_video_output(
-        str(empty_file)
-    ) is False
+    assert validate_video_output(str(empty_file)) is False
 
 
 # ---------------------------------------------------------
@@ -520,9 +509,7 @@ def test_male_voice_matches_male_avatar():
 
 
 def test_default_avatar_matches_male_voice_when_avatar_missing():
-    response = post_generation(
-        "en-US-ChristopherNeural"
-    )
+    response = post_generation("en-US-ChristopherNeural")
 
     assert response.status_code == 202
 
@@ -530,9 +517,7 @@ def test_default_avatar_matches_male_voice_when_avatar_missing():
 
     assert body["avatar"] == MALE_AVATAR
 
-    job_response = client.get(
-        f"/api/v1/avatar/jobs/{body['job_id']}"
-    )
+    job_response = client.get(f"/api/v1/avatar/jobs/{body['job_id']}")
 
     assert job_response.status_code == 200
     assert job_response.json()["avatar"] == MALE_AVATAR
@@ -558,9 +543,7 @@ def test_female_voice_matches_female_avatar():
 
 
 def test_default_avatar_matches_female_voice_when_avatar_missing():
-    response = post_generation(
-        "en-US-JennyNeural"
-    )
+    response = post_generation("en-US-JennyNeural")
 
     assert response.status_code == 202
 
@@ -571,9 +554,7 @@ def test_unsupported_voice_returns_400():
     response = client.post(
         "/api/v1/avatar/generate",
         files=make_uploads(),
-        data={
-            "voice": "en-US-UnknownNeural"
-        },
+        data={"voice": "en-US-UnknownNeural"},
     )
 
     assert response.status_code == 400
@@ -631,10 +612,7 @@ def test_female_voice_rejects_male_avatar():
 
 
 def test_unknown_gender_falls_back_to_default_avatar():
-    assert (
-        get_avatar_for_voice("unknown-voice")
-        == DEFAULT_AVATAR
-    )
+    assert get_avatar_for_voice("unknown-voice") == DEFAULT_AVATAR
 
     assert (
         get_avatar_for_voice(

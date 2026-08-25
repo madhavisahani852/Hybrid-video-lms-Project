@@ -23,7 +23,6 @@ from src.validation import (
     validate_model,
 )
 
-
 logger = get_logger("main")
 
 
@@ -63,7 +62,6 @@ VOICE_GENDER = {
     "en-US-GuyNeural": "male",
     "en-GB-RyanNeural": "male",
     "en-IN-PrabhatNeural": "male",
-
     # Female voices
     "en-US-JennyNeural": "female",
     "en-GB-SoniaNeural": "female",
@@ -74,6 +72,7 @@ VOICE_GENDER = {
 # ============================================================================
 # Voice / avatar helper functions
 # ============================================================================
+
 
 def get_voice_gender(voice: str) -> str:
     """
@@ -186,6 +185,7 @@ def get_avatar_for_voice(
 # Health check
 # ============================================================================
 
+
 @app.get("/")
 def read_root():
     logger.info("Health check endpoint 'GET /' called.")
@@ -199,6 +199,7 @@ def read_root():
 # ============================================================================
 # Generate avatar
 # ============================================================================
+
 
 @app.post(
     "/api/v1/avatar/generate",
@@ -229,9 +230,7 @@ async def generate_avatar(
     # ------------------------------------------------------------------
 
     if voice not in VOICE_GENDER:
-        logger.warning(
-            f"Unsupported voice requested: '{voice}'"
-        )
+        logger.warning(f"Unsupported voice requested: '{voice}'")
 
         raise HTTPException(
             status_code=400,
@@ -254,8 +253,7 @@ async def generate_avatar(
     )
 
     logger.info(
-        f"Voice '{voice}' resolved to gender='{gender}', "
-        f"avatar='{selected_avatar}'"
+        f"Voice '{voice}' resolved to gender='{gender}', " f"avatar='{selected_avatar}'"
     )
 
     # ------------------------------------------------------------------
@@ -278,11 +276,7 @@ async def generate_avatar(
 
     job_id = f"job_{uuid.uuid4().hex[:12]}"
 
-    created_at = (
-        datetime.now(timezone.utc)
-        .isoformat()
-        .replace("+00:00", "Z")
-    )
+    created_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     # ------------------------------------------------------------------
     # Save uploaded files
@@ -309,7 +303,6 @@ async def generate_avatar(
         "completed_at": None,
         "output_url": None,
         "error_message": None,
-
         # Voice / avatar metadata
         "voice": voice,
         "avatar": selected_avatar,
@@ -330,9 +323,7 @@ async def generate_avatar(
         jobs_db,
     )
 
-    logger.info(
-        f"Successfully queued job {job_id}"
-    )
+    logger.info(f"Successfully queued job {job_id}")
 
     # ------------------------------------------------------------------
     # API response
@@ -353,23 +344,17 @@ async def generate_avatar(
 # Job status
 # ============================================================================
 
+
 @app.get(
     "/api/v1/avatar/jobs/{job_id}",
     response_model=JobStatusResponse,
 )
 def get_job_status(job_id: str):
-    logger.info(
-        f"Querying job status for job_id='{job_id}'"
-    )
+    logger.info(f"Querying job status for job_id='{job_id}'")
 
     if job_id not in jobs_db:
-        logger.warning(
-            f"Job status query failed: "
-            f"job '{job_id}' not found."
-        )
+        logger.warning(f"Job status query failed: " f"job '{job_id}' not found.")
 
         raise JobNotFoundError(job_id)
 
-    return JobStatusResponse(
-        **jobs_db[job_id]
-    )
+    return JobStatusResponse(**jobs_db[job_id])
