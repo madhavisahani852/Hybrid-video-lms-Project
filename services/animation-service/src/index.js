@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { exec } from 'child_process';
 import util from 'util';
+import { validateRenderedVideo } from '../scripts/validate_video.js';
 
 const execPromise = util.promisify(exec);
 
@@ -499,7 +500,8 @@ async function runRenderPipeline(jobId, speaker, languageCode) {
       const { chromium } = await import('playwright');
       const browser = await chromium.launch({ headless: true });
       const context = await browser.newContext({
-        viewport: { width: 1280, height: 720 }
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1
       });
 
       const page = await context.newPage();
@@ -516,7 +518,7 @@ async function runRenderPipeline(jobId, speaker, languageCode) {
       await page.waitForFunction(() => typeof window.stepDurations !== 'undefined' && window.stepDurations.length > 0, { timeout: 10000 });
 
       const totalDuration = durations.reduce((a, b) => a + b, 0);
-      const fps = 15;
+      const fps = 30; // Production standard 30 FPS
       const totalFrames = Math.ceil(totalDuration * fps);
 
       for (let f = 0; f < totalFrames; f++) {
@@ -524,7 +526,9 @@ async function runRenderPipeline(jobId, speaker, languageCode) {
 
         await page.evaluate((t) => {
           window.currentTime = t;
-          window.renderFrame(t);
+          if (typeof window.renderFrame === 'function') {
+            window.renderFrame(t);
+          }
         }, time);
 
         const element = page.locator('#video-canvas');
@@ -547,10 +551,10 @@ async function runRenderPipeline(jobId, speaker, languageCode) {
       job.progress = 90;
       jobsDb.set(jobId, { ...job });
 
-      await execPromise(`ffmpeg -framerate 15 -i "${FRAMES_DIR}/frame_%05d.png" -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p -y "${finalVideoMp4}"`);
+      await execPromise(`ffmpeg -framerate 30 -i "${FRAMES_DIR}/frame_%05d.png" -vf "scale=1920:1080:flags=lanczos,format=yuv420p" -c:v libx264 -preset medium -crf 18 -g 60 -keyint_min 30 -sc_threshold 0 -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709 -y "${finalVideoMp4}"`);
     }
 
-    // 4. Concatenate audio
+    // 4. Concatenate audio with 48kHz resampling
     job.status = 'compiling_audio';
     job.progress = 85;
     jobsDb.set(jobId, { ...job });
@@ -559,13 +563,15 @@ async function runRenderPipeline(jobId, speaker, languageCode) {
     let concatListContent = "";
     for (let i = 0; i < courseSubtitles.length; i++) {
       const stepAudio = path.join(jobAudioDir, `step_${i}.wav`);
-      concatListContent += `file '${stepAudio}'\n`;
+      if (fs.existsSync(stepAudio)) {
+        concatListContent += `file '${stepAudio}'\n`;
+      }
     }
     fs.writeFileSync(concatListPath, concatListContent);
 
     const finalAudioWav = path.join(__dirname, `../public/assets/final_audio_${jobId}.wav`);
-    await execPromise(`ffmpeg -f concat -safe 0 -i "${concatListPath}" -y "${finalAudioWav}"`);
-    fs.unlinkSync(concatListPath);
+    await execPromise(`ffmpeg -f concat -safe 0 -i "${concatListPath}" -c:a pcm_s16le -ar 48000 -ac 2 -y "${finalAudioWav}"`);
+    if (fs.existsSync(concatListPath)) fs.unlinkSync(concatListPath);
 
     // 5. Multiplex audio and video
     job.status = 'multiplexing';
@@ -578,7 +584,14 @@ async function runRenderPipeline(jobId, speaker, languageCode) {
     }
 
     const finalOutputMp4 = path.join(OUTPUT_DIR, `video_${jobId}.mp4`);
-    await execPromise(`ffmpeg -i "${finalVideoMp4}" -i "${finalAudioWav}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -shortest -y "${finalOutputMp4}"`);
+    await execPromise(`ffmpeg -i "${finalVideoMp4}" -i "${finalAudioWav}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -ar 48000 -ac 2 -movflags +faststart -shortest -y "${finalOutputMp4}"`);
+
+    // 6. Quality Validation
+    try {
+      validateRenderedVideo(finalOutputMp4, { expectedFps: 30, expectedWidth: 1920, expectedHeight: 1080 });
+    } catch (valErr) {
+      console.warn(`[Validation Warning] ${valErr.message}`);
+    }
 
     // Cleanup temp files
     if (fs.existsSync(finalAudioWav)) fs.unlinkSync(finalAudioWav);

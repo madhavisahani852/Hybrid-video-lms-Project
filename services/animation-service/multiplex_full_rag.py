@@ -11,11 +11,11 @@ with open(male_list_file, "w") as f:
     for i in range(24):
         f.write(f"file 'templates/rag/public/audio/male/step_{i}.wav'\n")
 
-print("Concatenating female audio steps...")
-subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", female_list_file, "-c", "copy", "female_full.wav"])
+print("Concatenating female audio steps (48kHz stereo)...")
+subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", female_list_file, "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", "female_full.wav"])
 
-print("Concatenating male audio steps...")
-subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", male_list_file, "-c", "copy", "male_full.wav"])
+print("Concatenating male audio steps (48kHz stereo)...")
+subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", male_list_file, "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", "male_full.wav"])
 
 print("Multiplexing 15-minute video with female audio track...")
 subprocess.run([
@@ -25,6 +25,9 @@ subprocess.run([
     "-c:v", "copy",
     "-c:a", "aac",
     "-b:a", "192k",
+    "-ar", "48000",
+    "-ac", "2",
+    "-movflags", "+faststart",
     "-shortest",
     "public/outputs/video_rag_female.mp4"
 ])
@@ -37,6 +40,9 @@ subprocess.run([
     "-c:v", "copy",
     "-c:a", "aac",
     "-b:a", "192k",
+    "-ar", "48000",
+    "-ac", "2",
+    "-movflags", "+faststart",
     "-shortest",
     "public/outputs/video_rag_male.mp4"
 ])

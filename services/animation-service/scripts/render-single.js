@@ -20,24 +20,28 @@ async function main() {
   await new Promise(r => setTimeout(r, 2000));
 
   try {
+    const puppeteerOpts = {
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--enable-features=WebCodecs',
+        '--use-gl=swiftshader',
+        '--enable-unsafe-webgpu',
+        '--disable-features=AudioServiceOutOfProcess'
+      ]
+    };
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      puppeteerOpts.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    }
+
     await renderVideo({
       projectFile: tempProjFile,
       settings: {
         outDir: 'render-output/raw',
         outFile: `${scene}.mp4`,
         logProgress: true,
-        puppeteer: {
-          executablePath: 'C:/Users/Joel/.cache/puppeteer/chrome/win64-131.0.6778.204/chrome-win64/chrome.exe',
-          args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--enable-features=WebCodecs',
-            '--use-gl=swiftshader',
-            '--enable-unsafe-webgpu',
-            '--disable-features=AudioServiceOutOfProcess'
-          ],
-        },
+        puppeteer: puppeteerOpts
       }
     });
   } catch (err) {
