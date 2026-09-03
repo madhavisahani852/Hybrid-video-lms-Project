@@ -2,8 +2,10 @@ import json
 import subprocess
 from pathlib import Path
 
-from src.ffmpeg_service import concatenate_videos
-
+from src.ffmpeg_service import (
+    FFmpegAssemblyError,
+    concatenate_videos,
+)
 
 def run_ffmpeg(*args):
     subprocess.run(
@@ -222,6 +224,7 @@ def test_invalid_video_input_returns_ffmpeg_error(tmp_path):
             str(audio),
             str(output),
         )
-        assert False, "Expected FFmpeg failure for invalid video input"
-    except subprocess.CalledProcessError as exc:
-        assert exc.returncode != 0
+        assert False, "Expected FFmpegAssemblyError"
+    except FFmpegAssemblyError as exc:
+        assert "FFmpeg video assembly failed" in str(exc)
+        assert "Invalid data found when processing input" in str(exc)
