@@ -25,11 +25,7 @@ def probe_video_stream(file_path: str) -> Dict:
     metadata = json.loads(result.stdout)
 
     video_stream = next(
-        (
-            s
-            for s in metadata.get("streams", [])
-            if s.get("codec_type") == "video"
-        ),
+        (s for s in metadata.get("streams", []) if s.get("codec_type") == "video"),
         None,
     )
 
@@ -67,8 +63,7 @@ def validate_final_mp4(output_path: str) -> bool:
 
     if os.path.getsize(output_path) == 0:
         raise FFmpegAssemblyError(
-            f"Final MP4 validation failed: output file is empty: "
-            f"{output_path}"
+            f"Final MP4 validation failed: output file is empty: " f"{output_path}"
         )
 
     cmd = [
@@ -98,31 +93,19 @@ def validate_final_mp4(output_path: str) -> bool:
         else:
             error = "Invalid ffprobe output"
 
-        raise FFmpegAssemblyError(
-            f"Final MP4 validation failed: {error}"
-        ) from exc
+        raise FFmpegAssemblyError(f"Final MP4 validation failed: {error}") from exc
 
     streams = metadata.get("streams", [])
 
-    has_video = any(
-        stream.get("codec_type") == "video"
-        for stream in streams
-    )
+    has_video = any(stream.get("codec_type") == "video" for stream in streams)
 
-    has_audio = any(
-        stream.get("codec_type") == "audio"
-        for stream in streams
-    )
+    has_audio = any(stream.get("codec_type") == "audio" for stream in streams)
 
     if not has_video:
-        raise FFmpegAssemblyError(
-            "Final MP4 validation failed: no video stream found"
-        )
+        raise FFmpegAssemblyError("Final MP4 validation failed: no video stream found")
 
     if not has_audio:
-        raise FFmpegAssemblyError(
-            "Final MP4 validation failed: no audio stream found"
-        )
+        raise FFmpegAssemblyError("Final MP4 validation failed: no audio stream found")
 
     return True
 
@@ -141,9 +124,7 @@ def _run_ffmpeg(cmd: List[str]) -> None:
     except subprocess.CalledProcessError as exc:
         error = exc.stderr.strip() or "Unknown FFmpeg error"
 
-        raise FFmpegAssemblyError(
-            f"FFmpeg video assembly failed: {error}"
-        ) from exc
+        raise FFmpegAssemblyError(f"FFmpeg video assembly failed: {error}") from exc
 
 
 def concatenate_videos(
@@ -157,9 +138,7 @@ def concatenate_videos(
     """
 
     if not video_paths:
-        raise ValueError(
-            "No video paths provided for concatenation"
-        )
+        raise ValueError("No video paths provided for concatenation")
 
     # Fast path for single video clip
     if len(video_paths) == 1:
@@ -199,10 +178,7 @@ def concatenate_videos(
 
     try:
         # Probe all input videos to check if they match perfectly
-        metadatas = [
-            probe_video_stream(path)
-            for path in video_paths
-        ]
+        metadatas = [probe_video_stream(path) for path in video_paths]
 
         first_meta = metadatas[0]
 
@@ -230,14 +206,9 @@ def concatenate_videos(
                 encoding="utf-8",
             ) as file:
                 for path in video_paths:
-                    safe_path = (
-                        os.path.abspath(path)
-                        .replace("'", "'\\''")
-                    )
+                    safe_path = os.path.abspath(path).replace("'", "'\\''")
 
-                    file.write(
-                        f"file '{safe_path}'\n"
-                    )
+                    file.write(f"file '{safe_path}'\n")
 
             cmd.extend(
                 [
@@ -301,9 +272,7 @@ def concatenate_videos(
                 concat_v_inputs += f"[v{index}]"
 
             filter_parts.append(
-                f"{concat_v_inputs}"
-                f"concat=n={len(video_paths)}:v=1:a=0"
-                "[vout]"
+                f"{concat_v_inputs}" f"concat=n={len(video_paths)}:v=1:a=0" "[vout]"
             )
 
             cmd.extend(
@@ -348,9 +317,7 @@ def concatenate_videos(
 
     finally:
         # Always clean up temporary concat list.
-        if concat_list_path and os.path.exists(
-            concat_list_path
-        ):
+        if concat_list_path and os.path.exists(concat_list_path):
             try:
                 os.remove(concat_list_path)
             except OSError:
