@@ -11,7 +11,7 @@ from fastapi import (
     UploadFile,
     status,
 )
-
+from fastapi.staticfiles import StaticFiles
 from src.exceptions import JobNotFoundError, register_exception_handlers
 from src.logging_config import get_logger
 from src.pipeline import run_talking_head_pipeline
@@ -34,6 +34,11 @@ app = FastAPI(
     title="AI Talking Head Service",
     description="REST API for generating lip-synced talking head avatars",
     version="1.0.0",
+)
+app.mount(
+    "/outputs",
+    StaticFiles(directory="storage/jobs"),
+    name="outputs",
 )
 
 register_exception_handlers(app)

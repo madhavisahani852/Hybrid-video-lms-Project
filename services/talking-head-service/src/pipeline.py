@@ -584,7 +584,11 @@ def run_talking_head_pipeline(
 
         jobs_db[job_id]["status"] = "completed"
         jobs_db[job_id]["progress"] = 100.0
-        jobs_db[job_id]["output_url"] = str(Path(backend_output).resolve())
+        if Path(backend_output).exists():
+            jobs_db[job_id]["output_url"] = f"/outputs/{job_id}/outputs/avatar.mp4"
+        else:
+            jobs_db[job_id]["output_url"] = None
+        
         jobs_db[job_id]["completed_at"] = (
             datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         )
