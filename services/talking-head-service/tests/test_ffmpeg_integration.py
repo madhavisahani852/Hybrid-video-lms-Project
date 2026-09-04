@@ -5,7 +5,9 @@ from pathlib import Path
 from src.ffmpeg_service import (
     FFmpegAssemblyError,
     concatenate_videos,
+    validate_final_mp4,
 )
+
 
 def run_ffmpeg(*args):
     subprocess.run(
@@ -41,9 +43,7 @@ def get_stream_duration(path, codec_type):
     metadata = probe_media(path)
 
     stream = next(
-        stream
-        for stream in metadata["streams"]
-        if stream["codec_type"] == codec_type
+        stream for stream in metadata["streams"] if stream["codec_type"] == codec_type
     )
 
     return float(stream["duration"])
@@ -80,18 +80,26 @@ def test_single_chunk_creates_valid_mp4(tmp_path):
     output = tmp_path / "final.mp4"
 
     run_ffmpeg(
-        "-f", "lavfi",
-        "-i", "color=c=black:s=320x240:r=25",
-        "-t", "2",
-        "-c:v", "libx264",
-        "-pix_fmt", "yuv420p",
+        "-f",
+        "lavfi",
+        "-i",
+        "color=c=black:s=320x240:r=25",
+        "-t",
+        "2",
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
         str(video),
     )
 
     run_ffmpeg(
-        "-f", "lavfi",
-        "-i", "sine=frequency=1000:duration=2",
-        "-c:a", "libmp3lame",
+        "-f",
+        "lavfi",
+        "-i",
+        "sine=frequency=1000:duration=2",
+        "-c:a",
+        "libmp3lame",
         str(audio),
     )
 
@@ -107,14 +115,8 @@ def test_single_chunk_creates_valid_mp4(tmp_path):
 
     metadata = probe_media(output)
 
-    assert any(
-        stream["codec_type"] == "video"
-        for stream in metadata["streams"]
-    )
-    assert any(
-        stream["codec_type"] == "audio"
-        for stream in metadata["streams"]
-    )
+    assert any(stream["codec_type"] == "video" for stream in metadata["streams"])
+    assert any(stream["codec_type"] == "audio" for stream in metadata["streams"])
 
 
 def test_multiple_chunks_preserve_order(tmp_path):
@@ -125,28 +127,41 @@ def test_multiple_chunks_preserve_order(tmp_path):
 
     # First chunk = black
     run_ffmpeg(
-        "-f", "lavfi",
-        "-i", "color=c=black:s=320x240:r=25",
-        "-t", "1",
-        "-c:v", "libx264",
-        "-pix_fmt", "yuv420p",
+        "-f",
+        "lavfi",
+        "-i",
+        "color=c=black:s=320x240:r=25",
+        "-t",
+        "1",
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
         str(chunk_0),
     )
 
     # Second chunk = white
     run_ffmpeg(
-        "-f", "lavfi",
-        "-i", "color=c=white:s=320x240:r=25",
-        "-t", "1",
-        "-c:v", "libx264",
-        "-pix_fmt", "yuv420p",
+        "-f",
+        "lavfi",
+        "-i",
+        "color=c=white:s=320x240:r=25",
+        "-t",
+        "1",
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
         str(chunk_1),
     )
 
     run_ffmpeg(
-        "-f", "lavfi",
-        "-i", "sine=frequency=1000:duration=2",
-        "-c:a", "libmp3lame",
+        "-f",
+        "lavfi",
+        "-i",
+        "sine=frequency=1000:duration=2",
+        "-c:a",
+        "libmp3lame",
         str(audio),
     )
 
@@ -177,18 +192,26 @@ def test_final_audio_and_video_are_synchronized(tmp_path):
 
     for chunk in [chunk_0, chunk_1]:
         run_ffmpeg(
-            "-f", "lavfi",
-            "-i", "color=c=black:s=320x240:r=25",
-            "-t", "1",
-            "-c:v", "libx264",
-            "-pix_fmt", "yuv420p",
+            "-f",
+            "lavfi",
+            "-i",
+            "color=c=black:s=320x240:r=25",
+            "-t",
+            "1",
+            "-c:v",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
             str(chunk),
         )
 
     run_ffmpeg(
-        "-f", "lavfi",
-        "-i", "sine=frequency=1000:duration=2",
-        "-c:a", "libmp3lame",
+        "-f",
+        "lavfi",
+        "-i",
+        "sine=frequency=1000:duration=2",
+        "-c:a",
+        "libmp3lame",
         str(audio),
     )
 
@@ -212,9 +235,12 @@ def test_invalid_video_input_returns_ffmpeg_error(tmp_path):
     invalid_video.write_text("this is not a valid video")
 
     run_ffmpeg(
-        "-f", "lavfi",
-        "-i", "sine=frequency=1000:duration=1",
-        "-c:a", "libmp3lame",
+        "-f",
+        "lavfi",
+        "-i",
+        "sine=frequency=1000:duration=1",
+        "-c:a",
+        "libmp3lame",
         str(audio),
     )
 
@@ -228,3 +254,58 @@ def test_invalid_video_input_returns_ffmpeg_error(tmp_path):
     except FFmpegAssemblyError as exc:
         assert "FFmpeg video assembly failed" in str(exc)
         assert "Invalid data found when processing input" in str(exc)
+
+
+def test_final_mp4_validation_rejects_invalid_output(tmp_path):
+    invalid_output = tmp_path / "invalid.mp4"
+
+    invalid_output.write_text("not a real mp4")
+
+    try:
+        validate_final_mp4(str(invalid_output))
+        assert False, "Expected FFmpegAssemblyError"
+    except FFmpegAssemblyError as exc:
+        assert "Final MP4 validation failed" in str(exc)
+
+
+def test_temporary_concat_file_is_cleaned_up(tmp_path):
+    chunk_0 = tmp_path / "chunk_0.mp4"
+    chunk_1 = tmp_path / "chunk_1.mp4"
+    audio = tmp_path / "audio.mp3"
+    output = tmp_path / "final.mp4"
+
+    for chunk in [chunk_0, chunk_1]:
+        run_ffmpeg(
+            "-f",
+            "lavfi",
+            "-i",
+            "color=c=black:s=320x240:r=25",
+            "-t",
+            "1",
+            "-c:v",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
+            str(chunk),
+        )
+
+    run_ffmpeg(
+        "-f",
+        "lavfi",
+        "-i",
+        "sine=frequency=1000:duration=2",
+        "-c:a",
+        "libmp3lame",
+        str(audio),
+    )
+
+    concatenate_videos(
+        [str(chunk_0), str(chunk_1)],
+        str(audio),
+        str(output),
+    )
+
+    assert output.exists()
+
+    concat_files = list(tmp_path.glob("concat_list_*.txt"))
+    assert concat_files == []
