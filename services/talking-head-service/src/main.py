@@ -12,6 +12,7 @@ from fastapi import (
     status,
 )
 from fastapi.staticfiles import StaticFiles
+
 from src.exceptions import JobNotFoundError, register_exception_handlers
 from src.logging_config import get_logger
 from src.pipeline import run_talking_head_pipeline
