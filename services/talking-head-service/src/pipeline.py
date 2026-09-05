@@ -6,6 +6,7 @@ import cv2
 
 from src.exceptions import PipelineError
 from src.logging_config import get_logger
+from src.job_store import update_job, get_job
 
 logger = get_logger("pipeline")
 
@@ -47,8 +48,7 @@ def run_talking_head_pipeline(
     image_path: str,
     audio_path: str,
     model: str,
-    enhancer: bool,
-    jobs_db: Dict[str, Dict[str, Any]],
+    enhancer: bool
 ):
     """Talking Head Pipeline Boundary Execution Handler.
 
@@ -60,13 +60,14 @@ def run_talking_head_pipeline(
         f"(enhancer={enhancer})."
     )
 
-    if job_id not in jobs_db:
+    # Fetch from SQLite instead of jobs_db dictionary
+    job = get_job(job_id)
+    if not job:
         logger.error(f"Pipeline error: job {job_id} not found in state store.")
         return
 
-    # Transition state to processing
-    jobs_db[job_id]["status"] = "processing"
-    jobs_db[job_id]["progress"] = 10.0
+    # Transition state to processing using update_job
+    update_job(job_id, status="processing", progress=10.0)
 
     try:
         # Check for real inference model engine implementation.
@@ -88,8 +89,14 @@ def run_talking_head_pipeline(
 
     except Exception as exc:
         timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-        jobs_db[job_id]["status"] = "failed"
-        jobs_db[job_id]["progress"] = 0.0
-        jobs_db[job_id]["completed_at"] = timestamp
-        jobs_db[job_id]["error_message"] = str(exc)
+        
+        # Update failed status in SQLite
+        update_job(
+            job_id, 
+            status="failed", 
+            progress=0.0, 
+            completed_at=timestamp, 
+            error_message=str(exc)
+        )
+        
         logger.error(f"Pipeline failed for job {job_id}: {exc}")
