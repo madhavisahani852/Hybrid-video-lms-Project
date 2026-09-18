@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Optional
 
 from fastapi import (
     BackgroundTasks,
@@ -14,12 +14,17 @@ from fastapi import (
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from src.config import BASE_DIR
+from src.config import STORAGE_DIR
 from src.exceptions import JobNotFoundError, register_exception_handlers
 from src.logging_config import get_logger
 from src.pipeline import run_talking_head_pipeline
 from src.schemas import GenerateAvatarResponse, JobStatusResponse
-from src.storage import save_job_inputs
+from src.storage import (
+    create_job,
+    get_job,
+    initialize_job_database,
+    save_job_inputs,
+)
 from src.validation import (
     validate_audio_file,
     validate_image_file,
@@ -38,20 +43,17 @@ app = FastAPI(
     description="REST API for generating lip-synced talking head avatars",
     version="1.0.0",
 )
+
 app.mount(
-    "/outputs",
-    StaticFiles(directory="storage/jobs"),
+    "/api/v1/outputs",
+    StaticFiles(directory=str(STORAGE_DIR)),
     name="outputs",
 )
 
 register_exception_handlers(app)
 
-
-# ============================================================================
-# In-memory job store
-# ============================================================================
-
-jobs_db: Dict[str, Dict[str, Any]] = {}
+# Initialize persistent SQLite job database.
+initialize_job_database()
 
 
 # ============================================================================
@@ -273,7 +275,8 @@ async def generate_avatar(
     )
 
     logger.info(
-        f"Voice '{voice}' resolved to gender='{gender}', " f"avatar='{selected_avatar}'"
+        f"Voice '{voice}' resolved to gender='{gender}', "
+        f"avatar='{selected_avatar}'"
     )
 
     # ------------------------------------------------------------------
@@ -287,7 +290,6 @@ async def generate_avatar(
     # ------------------------------------------------------------------
 
     img_bytes = await validate_image_file(face_image)
-
     audio_bytes = await validate_audio_file(audio)
 
     # ------------------------------------------------------------------
@@ -296,7 +298,11 @@ async def generate_avatar(
 
     job_id = f"job_{uuid.uuid4().hex[:12]}"
 
-    created_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    created_at = (
+        datetime.now(timezone.utc)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
 
     # ------------------------------------------------------------------
     # Save uploaded files
@@ -311,23 +317,25 @@ async def generate_avatar(
     )
 
     # ------------------------------------------------------------------
-    # Create job state
+    # Create persistent job state in SQLite
     # ------------------------------------------------------------------
 
-    jobs_db[job_id] = {
-        "job_id": job_id,
-        "status": "queued",
-        "progress": 0.0,
-        "estimated_time_remaining": 30.0,
-        "created_at": created_at,
-        "completed_at": None,
-        "output_url": None,
-        "error_message": None,
-        # Voice / avatar metadata
-        "voice": voice,
-        "avatar": selected_avatar,
-        "gender": gender,
-    }
+    create_job(
+        {
+            "job_id": job_id,
+            "status": "queued",
+            "progress": 0.0,
+            "estimated_time_remaining": 30.0,
+            "created_at": created_at,
+            "completed_at": None,
+            "output_path": None,
+            "output_url": None,
+            "error_message": None,
+            "voice": voice,
+            "avatar": selected_avatar,
+            "gender": gender,
+        }
+    )
 
     # ------------------------------------------------------------------
     # Start background pipeline
@@ -340,7 +348,11 @@ async def generate_avatar(
         saved_paths["audio_path"],
         validated_model,
         enhancer,
-        jobs_db,
+        job_context={
+            "voice": voice,
+            "avatar": selected_avatar,
+            "gender": gender,
+        },
     )
 
     logger.info(f"Successfully queued job {job_id}")
@@ -372,9 +384,13 @@ async def generate_avatar(
 def get_job_status(job_id: str):
     logger.info(f"Querying job status for job_id='{job_id}'")
 
-    if job_id not in jobs_db:
-        logger.warning(f"Job status query failed: " f"job '{job_id}' not found.")
+    job = get_job(job_id)
+
+    if job is None:
+        logger.warning(
+            f"Job status query failed: job '{job_id}' not found."
+        )
 
         raise JobNotFoundError(job_id)
 
-    return JobStatusResponse(**jobs_db[job_id])
+    return JobStatusResponse(**job)

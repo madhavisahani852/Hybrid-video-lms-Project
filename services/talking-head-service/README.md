@@ -103,11 +103,25 @@ A job will **never** be marked `completed` without a validated, real video outpu
 
 ## Storage
 
-Uploaded files are persisted to `storage/jobs/{job_id}/inputs/` before the
-background task is started, so `UploadFile` objects are never used after the
-request lifecycle ends. The `storage/` directory is gitignored.
+Uploaded files are persisted to:
 
----
+* Input files: storage/jobs/<job_id>/inputs/
+* Generated output: storage/jobs/<job_id>/outputs/
+* SQLite job database: storage/jobs/jobs.db
+
+The `storage/` directory is gitignored.
+
+The API keeps the physical filesystem path and HTTP download URL separate:
+
+* `output_path` — physical filesystem path of the generated MP4.
+* `output_url` — HTTP API URL used to download the generated MP4.
+
+For a completed job, the canonical output URL is:
+
+`/api/v1/outputs/<job_id>/outputs/avatar.mp4`
+
+The SQLite database is the persistent source of truth for job state, so completed job records remain available after the service restarts.
+
 
 ## Setup Instructions
 
@@ -204,3 +218,9 @@ a **controlled failure**:
 
 This is intentional and production-safe. No fake video is generated and no job is
 falsely marked `completed`.
+
+## Job Management & Storage
+Job state is managed persistently using a SQLite database (`jobs.db`) located in the root `storage/` directory. 
+* **Database:** Stores job metadata, status, progress, and URLs (`storage/jobs.db`).
+* **Outputs:** Video files are saved in `storage/{job_id}/outputs/`.
+When the server restarts, job histories and physical video outputs remain intact and accessible.
